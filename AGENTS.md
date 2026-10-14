@@ -17,7 +17,7 @@ GPS/трекінг відкриває клітинки 70×70м в радіус�
 - `js/cloud.js` — Supabase auth + `pullFromCloud` (limit 60000) + `queueSync`/`pushToCloud` (батчі 1000, upsert ignoreDuplicates)
 - `js/debug.js` — debug-ходьба (dpad, WASD/стрілки, клік-телепорт, скидання) — тільки dev
 - `js/stats.js` — статистика (`fow_stats_v1`: дистанція, дні, стрік) + 11 досягнень (`fow_ach_v1`), `bumpStats` з `revealAt`
-- `js/ui.js` — кнопки, auth-модалка, ховає debug в prod
+- `js/ui.js` — кнопки, auth-модалка, QR-шерінг (`qr.svg`), ховає debug в prod
 - `config.js` — НЕ в репозиторії (`.gitignore`): генерується `inject-config.sh` з env на Render або лежить локально (див. `config.example.js`)
 
 ## Критичні інваріанти (порушення = регресія, всі вже ловились)

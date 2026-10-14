@@ -67,6 +67,7 @@ html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Seg
 .chk { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }
 #debugPanel .row .btn { padding: 8px 10px; font-size: 13px; }
 #btnDbgTeleport.on { background: #2563eb; border-color: #2563eb; }
+#qrImg { width: min(64vw, 240px); height: auto; background: #fff; padding: 10px; border-radius: 12px; }
 
 /* ---------- статистика і досягнення ---------- */
 .stat-row { display: flex; justify-content: space-between; padding: 6px 2px; border-bottom: 1px solid #374151; font-size: 14px; }
