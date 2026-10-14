@@ -17,7 +17,7 @@
   <div class="stats">
     <span id="statCells">0</span> клітинок
     <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
-    <span id="appVer" class="muted" title="Версія коду">v12</span>
+    <span id="appVer" class="muted" title="Версія коду">v13</span>
   </div>
   <button id="btnAuth" class="btn small">Увійти</button>
 </header>
@@ -81,8 +81,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=12"></script>
-<script src="app.js?v=12"></script>
+<script src="config.js?v=13"></script>
+<script type="module" src="app.js?v=13"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});

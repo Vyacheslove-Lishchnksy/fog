@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "npm run dev",
-    "dev": "python scripts/setmode.py dev && python -m http.server 8000",
-    "prod": "python scripts/setmode.py prod && python -m http.server 8001"
+    "dev": "python scripts/setmode.py dev && python scripts/serve.py 8000",
+    "prod": "python scripts/setmode.py prod && python scripts/serve.py 8001"
   }
 }
