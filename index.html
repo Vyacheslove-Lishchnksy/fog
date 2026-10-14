@@ -17,7 +17,7 @@
   <div class="stats">
     <span id="statCells">0</span> клітинок
     <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
-    <span id="appVer" class="muted" title="Версія коду">v15</span>
+    <span id="appVer" class="muted" title="Версія коду">v17</span>
   </div>
   <button id="btnAuth" class="btn small">Увійти</button>
 </header>
@@ -25,6 +25,7 @@
 <div id="controls">
   <button id="btnLocate" class="btn primary">📍 Де я?</button>
   <button id="btnTrack" class="btn">▶ Трекінг</button>
+  <button id="btnStats" class="btn ghost" title="Статистика і досягнення">📊</button>
   <button id="btnDebug" class="btn ghost" title="Меню ходьби для перевірки без GPS">🛠</button>
 </div>
 
@@ -79,10 +80,14 @@
 
 <div id="toast" class="hidden"></div>
 
+<div id="statsModal" class="modal hidden">
+  <div class="modal-card" id="statsCard"></div>
+</div>
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=15"></script>
-<script type="module" src="app.js?v=15"></script>
+<script src="config.js?v=17"></script>
+<script type="module" src="app.js?v=17"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});
