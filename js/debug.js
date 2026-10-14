@@ -2,6 +2,7 @@ import { $, toast } from './core.js';
 import { visited, persistLocal, resetProgress } from './store.js';
 import { map, clearRoute } from './world.js';
 import { drawFog } from './fog.js';
+import { setGrainAlpha } from './grain.js';
 import { revealAt } from './grid.js';
 
 // Віртуальна ходьба без GPS (тільки dev).
@@ -41,6 +42,7 @@ export function initDebug() {
   $('btnDebug').onclick = () => { panel.classList.toggle('hidden'); if (!panel.classList.contains('hidden')) dbgShow(); };
   $('btnDbgClose').onclick = () => panel.classList.add('hidden');
   $('btnDbgStart').onclick = () => { dbgWalkTo(map.getCenter(), true); toast('Ходок на центрі — ходи стрілками'); };
+  $('dbgGrain').oninput = (e) => { setGrainAlpha(e.target.value / 100); drawFog(); };
   $('btnDbgTeleport').onclick = (e) => {
     dbgTeleport = !dbgTeleport;
     e.currentTarget.textContent = '👆 Клік=телепорт: ' + (dbgTeleport ? 'увімк' : 'вимк');

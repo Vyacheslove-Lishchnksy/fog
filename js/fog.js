@@ -1,14 +1,14 @@
 import { CELL_METERS, MIN_FOG_ZOOM, R } from './core.js';
 import { visited } from './store.js';
 import { map } from './world.js';
+import { paintGrain } from './grain.js';
 
 const FOG_MARGIN = 300; // запас навколо екрана щоб драг не оголював краї
 const fogCanvas = document.createElement('canvas');
 fogCanvas.id = 'fogCanvas';
 map.getPane('mapPane').appendChild(fogCanvas);
 const fctx = fogCanvas.getContext('2d');
-// Прихований шар з ЧІТКИМИ квадратами; видимий canvas — його блюр-копія.
-// Так краї м'які, а форма лишається квадратною (без видимих кругів).
+// Прихований шар з чіткими квадратами; видимий — його блюр-копія + зерно.
 const fogHard = document.createElement('canvas');
 const hctx = fogHard.getContext('2d');
 
@@ -37,22 +37,24 @@ export function drawFog() {
   fctx.filter = 'none';
   fctx.clearRect(0, 0, W, H);
 
-  hctx.globalCompositeOperation = 'source-over';
-  hctx.fillStyle = '#0b1120'; // непрозорий — карту під туманом не видно
-  hctx.fillRect(0, 0, W, H);
-  if (z < MIN_FOG_ZOOM || visited.size === 0) {
-    // суцільний туман без блюру: просто копіюємо
-    fctx.globalCompositeOperation = 'source-over';
-    fctx.filter = 'none';
-    fctx.drawImage(fogHard, 0, 0, W, H);
-    return;
-  }
-
   // Ланцюжок: екран C -> шар L = C - panePos -> глобаль G = L + pixelOrigin.
   const panePos = L.DomUtil.getPosition(map.getPane('mapPane'));
   const origin = map.getPixelOrigin();
   const scale = 256 * Math.pow(2, z);
   const k = 0.5 / (Math.PI * R);
+  const grainAt = () => paintGrain(fctx, W, H, topLeft.x + origin.x, topLeft.y + origin.y);
+
+  hctx.globalCompositeOperation = 'source-over';
+  hctx.fillStyle = '#0b1120'; // непрозорий — карту під туманом не видно
+  hctx.fillRect(0, 0, W, H);
+  if (z < MIN_FOG_ZOOM || visited.size === 0) {
+    // суцільний туман без блюру: просто копіюємо + зерно
+    fctx.globalCompositeOperation = 'source-over';
+    fctx.filter = 'none';
+    fctx.drawImage(fogHard, 0, 0, W, H);
+    grainAt();
+    return;
+  }
   const toCx = (p) => {
     const G = (p - FOG_MARGIN - panePos.x) + origin.x;
     return Math.floor((((G / scale) - 0.5) / k) / CELL_METERS);
@@ -81,14 +83,14 @@ export function drawFog() {
       hctx.fillRect(px0, pyN, (px1 - px0) + 1, (pyS - pyN) + 1);
     }
   }
-  // Видимий шар = блюр-копія: краї м'які, форма квадратна.
-  // Радіус ~18% клітинки (4..12px). Край canvas далеко за екраном — без щілин.
+  // Видимий шар = блюр-копія (радіус ~18% клітинки, 4..12px): краї м'які, форма квадратна.
   const cellPx = CELL_METERS * scale * k;
   const blurR = Math.min(12, Math.max(4, cellPx * 0.18));
   fctx.globalCompositeOperation = 'source-over';
   try { fctx.filter = `blur(${blurR.toFixed(1)}px)`; } catch { fctx.filter = 'none'; }
   fctx.drawImage(fogHard, 0, 0, W, H);
   fctx.filter = 'none';
+  grainAt();
 }
 
 export function initFog() {
