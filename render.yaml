@@ -5,7 +5,7 @@
 services:
   - type: web
     name: fow-prod
-    runtime: static
+    env: static
     branch: main
     buildCommand: bash inject-config.sh
     staticPublishPath: .
@@ -19,7 +19,7 @@ services:
 
   - type: web
     name: fow-dev
-    runtime: static
+    env: static
     branch: dev
     buildCommand: bash inject-config.sh
     staticPublishPath: .
