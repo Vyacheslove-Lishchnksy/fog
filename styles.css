@@ -41,6 +41,8 @@ html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Seg
 #toast.hidden { display: none; }
 .leaflet-container { background: #0b1220; font: inherit; }
 #fogCanvas { position: absolute; left: 0; top: 0; z-index: 300; pointer-events: none; } /* всередині map-pane: вище тайлів (200), нижче маркерів/ліній (400+) */
+/* зум-контрол нижче топ-панелі, щоб не ховався під нею */
+.leaflet-top.leaflet-right { top: 64px; }
 
 /* ---------- debug-панель ходьби ---------- */
 #debugPanel {
