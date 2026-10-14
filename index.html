@@ -17,7 +17,7 @@
   <div class="stats">
     <span id="statCells">0</span> клітинок
     <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
-    <span id="appVer" class="muted" title="Версія коду">v17</span>
+    <span id="appVer" class="muted" title="Версія коду">v18</span>
   </div>
   <button id="btnAuth" class="btn small">Увійти</button>
 </header>
@@ -49,6 +49,9 @@
     <label class="chk"><input type="checkbox" id="dbgFollow" checked /> слідкувати</label>
   </div>
   <div class="row">
+    <label class="chk">✨ <input id="dbgGrain" type="range" min="0" max="25" value="8" title="Щільність зерна" /></label>
+  </div>
+  <div class="row">
     <button id="btnDbgStart" class="btn primary">📍 Старт з центру</button>
   </div>
   <div class="row">
@@ -59,7 +62,6 @@
   </div>
   <div class="muted">Клавіатура: стрілки / WASD = крок</div>
 </div>
-
 <div id="authModal" class="modal hidden">
   <div class="modal-card">
     <h3>Онлайн-прогрес</h3>
@@ -86,8 +88,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=17"></script>
-<script type="module" src="app.js?v=17"></script>
+<script src="config.js?v=18"></script>
+<script type="module" src="app.js?v=18"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});

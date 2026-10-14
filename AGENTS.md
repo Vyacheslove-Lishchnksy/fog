@@ -12,6 +12,7 @@ GPS/трекінг відкриває клітинки 70×70м в радіус�
 - `js/world.js` — карта (зуми 11–18), тайли OSM (`keepBuffer: 2`, `updateWhenIdle`), `lockToHome` (бокс ±25км, relock >20км), маркери, маршрут (>5м, max 1000)
 - `js/grid.js` — `cellsAround` (клітинки в колі), `revealAt` (додати → persist → draw → sync → маркер → замок → зум)
 - `js/fog.js` — canvas туману + `drawFog`, `initFog` (перемальовка на viewreset/moveend/zoomend/resize)
+- `js/grain.js` — перлинне зерно поверх туману (плитка 128px, `source-atop`, фаза по світу)
 - `js/gps.js` — `locateOnce`, трекінг `watchPosition`, авто-місто через Nominatim
 - `js/cloud.js` — Supabase auth + `pullFromCloud` (limit 60000) + `queueSync`/`pushToCloud` (батчі 1000, upsert ignoreDuplicates)
 - `js/debug.js` — debug-ходьба (dpad, WASD/стрілки, клік-телепорт, скидання) — тільки dev
