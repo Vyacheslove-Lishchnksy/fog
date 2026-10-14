@@ -1,5 +1,6 @@
 import { $, CELL_METERS, REVEAL_RADIUS } from './core.js';
-import { visited, pendingSync, persistLocal } from './store.js';
+import { visited, pendingSync, persistLocal, route } from './store.js';
+import { bumpStats } from './stats.js';
 import { map, lockToHome, pushRoute, showMe } from './world.js';
 import { drawFog } from './fog.js';
 import { queueSync } from './cloud.js';
@@ -27,7 +28,9 @@ export function revealAt(latlng, moveMap = false, doLock = false) {
   for (let i = 0; i < cells.length; i++) {
     if (!visited.has(cells[i])) { visited.add(cells[i]); pendingSync.add(cells[i]); added++; }
   }
+  const prev = route.last;
   pushRoute(latlng);
+  bumpStats(added, prev ? map.distance(prev, latlng) : 0);
   if (added > 0) {
     persistLocal();
     drawFog();

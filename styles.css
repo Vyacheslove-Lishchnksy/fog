@@ -67,3 +67,13 @@ html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Seg
 .chk { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }
 #debugPanel .row .btn { padding: 8px 10px; font-size: 13px; }
 #btnDbgTeleport.on { background: #2563eb; border-color: #2563eb; }
+
+/* ---------- статистика і досягнення ---------- */
+.stat-row { display: flex; justify-content: space-between; padding: 6px 2px; border-bottom: 1px solid #374151; font-size: 14px; }
+.modal-card h4 { margin: 10px 0 6px; font-size: 14px; opacity: .85; }
+.modal-card { max-height: 80vh; overflow-y: auto; }
+.ach { display: flex; gap: 10px; align-items: center; padding: 7px 8px; border-radius: 10px; background: #111827; margin-bottom: 6px; opacity: .45; }
+.ach.on { opacity: 1; border: 1px solid #2563eb; }
+.ach span { font-size: 22px; }
+.ach div { display: flex; flex-direction: column; }
+.ach i { font-style: normal; font-size: 12px; opacity: .7; }
