@@ -1,0 +1,67 @@
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #111827; color: #fff; }
+#map { position: fixed; inset: 0; }
+#topbar {
+  position: fixed; top: 10px; left: 10px; right: 10px;
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(17,24,39,.88); backdrop-filter: blur(8px);
+  padding: 10px 12px; border-radius: 14px; z-index: 1000;
+}
+.brand { font-weight: 800; letter-spacing: .3px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand span { font-weight: 400; opacity: .8; font-size: 13px; }
+.stats { font-size: 13px; opacity: .9; display: flex; gap: 8px; align-items: center; }
+.sync-off { color: #fbbf24; }
+.sync-on { color: #34d399; }
+.btn {
+  border: 0; border-radius: 12px; padding: 10px 14px;
+  background: #374151; color: #fff; font-weight: 600; cursor: pointer;
+}
+.btn.primary { background: #2563eb; }
+.btn.small { padding: 8px 10px; font-size: 13px; }
+.btn.ghost { background: transparent; border: 1px solid #4b5563; }
+#controls {
+  position: fixed; bottom: 18px; left: 10px; right: 10px;
+  display: flex; gap: 8px; z-index: 1000; justify-content: center;
+}
+#controls .btn { flex: 1; max-width: 220px; box-shadow: 0 6px 20px rgba(0,0,0,.35); }
+.modal {
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px;
+}
+.modal.hidden { display: none; }
+.modal-card { background: #1f2937; border-radius: 16px; padding: 18px; width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 10px; }
+.modal-card input { padding: 10px 12px; border-radius: 10px; border: 1px solid #4b5563; background: #111827; color: #fff; }
+.row { display: flex; gap: 8px; }
+.row .btn { flex: 1; }
+.muted { opacity: .7; font-size: 13px; }
+#toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: #111827; border: 1px solid #374151; padding: 10px 14px; border-radius: 12px; z-index: 2000;
+}
+#toast.hidden { display: none; }
+.leaflet-container { background: #0b1220; font: inherit; }
+#fogCanvas { position: absolute; left: 0; top: 0; z-index: 300; pointer-events: none; } /* всередині map-pane: вище тайлів (200), нижче маркерів/ліній (400+) */
+
+/* ---------- debug-панель ходьби ---------- */
+#debugPanel {
+  position: fixed; right: 10px; bottom: 78px; z-index: 1500;
+  width: 230px; background: rgba(17,24,39,.95); backdrop-filter: blur(8px);
+  border: 1px solid #374151; border-radius: 16px; padding: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+#debugPanel.hidden { display: none; }
+.dbg-head { display: flex; align-items: center; justify-content: space-between; }
+#dbgPos { font-size: 12px; word-break: break-all; }
+.dpad { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.dpad button {
+  border: 0; border-radius: 10px; padding: 12px 0;
+  background: #374151; color: #fff; font-size: 16px; cursor: pointer;
+}
+.dpad button:active { background: #2563eb; }
+#debugPanel select {
+  flex: 1; padding: 8px; border-radius: 10px;
+  background: #111827; color: #fff; border: 1px solid #4b5563;
+}
+.chk { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }
+#debugPanel .row .btn { padding: 8px 10px; font-size: 13px; }
+#btnDbgTeleport.on { background: #2563eb; border-color: #2563eb; }

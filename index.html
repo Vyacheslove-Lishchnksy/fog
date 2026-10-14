@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Fog of War — моє місто</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#111827" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="styles.css?v=9" />
+</head>
+<body>
+<div id="map"></div>
+
+<header id="topbar">
+  <div class="brand">🌫️ FOG <span id="cityName">моє місто</span></div>
+  <div class="stats">
+    <span id="statCells">0</span> клітинок
+    <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
+    <span id="appVer" class="muted" title="Версія коду">v9</span>
+  </div>
+  <button id="btnAuth" class="btn small">Увійти</button>
+</header>
+
+<div id="controls">
+  <button id="btnLocate" class="btn primary">📍 Де я?</button>
+  <button id="btnTrack" class="btn">▶ Трекінг</button>
+  <button id="btnDemo" class="btn ghost" title="Симулювати прогулянку для перевірки на ПК">Demo</button>
+  <button id="btnDebug" class="btn ghost" title="Меню ходьби для перевірки без GPS">🛠</button>
+</div>
+
+<div id="debugPanel" class="hidden">
+  <div class="dbg-head">
+    <b>🛠 Ходьба (debug)</b>
+    <button id="btnDbgClose" class="btn small ghost">✕</button>
+  </div>
+  <div id="dbgPos" class="muted">клікни «Старт» або клік по карті</div>
+  <div class="dpad">
+    <span></span><button data-step="0,1">▲</button><span></span>
+    <button data-step="-1,0">◀</button><span></span><button data-step="1,0">▶</button>
+    <span></span><button data-step="0,-1">▼</button><span></span>
+  </div>
+  <div class="row">
+    <select id="dbgStep">
+      <option value="20">крок 20м</option>
+      <option value="70" selected>крок 70м</option>
+      <option value="200">крок 200м</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="dbgFollow" checked /> слідкувати</label>
+  </div>
+  <div class="row">
+    <button id="btnDbgStart" class="btn primary">📍 Старт з центру</button>
+  </div>
+  <div class="row">
+    <button id="btnDbgTeleport" class="btn">👆 Клік=телепорт: вимк</button>
+  </div>
+  <div class="row">
+    <button id="btnDbgReset" class="btn ghost">Скинути туман</button>
+  </div>
+  <div class="muted">Клавіатура: стрілки / WASD = крок</div>
+</div>
+
+<div id="authModal" class="modal hidden">
+  <div class="modal-card">
+    <h3>Онлайн-прогрес</h3>
+    <p class="muted">Без ключа Supabase працює локально. Додай ключ в <code>config.js</code> — і прогрес буде зберігатись в онлайні за акаунтом.</p>
+    <input id="email" type="email" placeholder="email" autocomplete="username" />
+    <input id="password" type="password" placeholder="пароль" autocomplete="current-password" />
+    <div class="row">
+      <button id="btnLogin" class="btn primary">Увійти</button>
+      <button id="btnSignup" class="btn">Реєстрація</button>
+    </div>
+    <div class="row">
+      <button id="btnLogout" class="btn ghost">Вийти</button>
+      <button id="btnCloseAuth" class="btn ghost">Закрити</button>
+    </div>
+    <p id="authMsg" class="muted"></p>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js?v=9"></script>
+<script src="app.js?v=9"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
