@@ -29,8 +29,8 @@ export function revealAt(latlng, moveMap = false, doLock = false) {
     if (!visited.has(cells[i])) { visited.add(cells[i]); pendingSync.add(cells[i]); added++; }
   }
   const prev = route.last;
-  pushRoute(latlng);
-  bumpStats(added, prev ? map.distance(prev, latlng) : 0);
+  const recorded = pushRoute(latlng);
+  bumpStats(added, recorded && prev ? map.distance(prev, latlng) : 0);
   if (added > 0) {
     persistLocal();
     drawFog();

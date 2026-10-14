@@ -47,8 +47,9 @@ export function showAccuracy(latlng, meters) {
 }
 
 // Маршрут: тільки при зсуві >5м, максимум 1000 точок.
+// Повертає true якщо точку записано (для чесного підрахунку дистанції).
 export function pushRoute(latlng) {
-  if (route.last && map.distance(route.last, latlng) <= 5) return;
+  if (route.last && map.distance(route.last, latlng) <= 5) return false;
   route.last = latlng;
   routeLine.addLatLng(latlng);
   route.latlngs.push(latlng);
@@ -56,6 +57,7 @@ export function pushRoute(latlng) {
     route.latlngs.shift();
     routeLine.setLatLngs(route.latlngs);
   }
+  return true;
 }
 
 export function clearRoute() {
