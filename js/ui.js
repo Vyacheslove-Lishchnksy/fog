@@ -21,7 +21,7 @@ function renderShare() {
 function shareButton() {
   const b = document.createElement('button');
   b.id = 'btnShare';
-  b.className = 'btn ghost';
+  b.className = 'btn ghost small';
   b.title = 'QR-код на телефон';
   b.textContent = '📱';
   b.onclick = renderShare;
@@ -56,7 +56,7 @@ export function initUI() {
   $('btnLocate').onclick = locateOnce;
   $('btnTrack').onclick = toggleTrack;
   $('btnStats').onclick = () => { renderStats(); $('statsModal').classList.remove('hidden'); };
-  $('controls').appendChild(shareButton());
+  $('topbar').insertBefore(shareButton(), $('btnAuth'));
   $('btnAuth').onclick = () => $('authModal').classList.remove('hidden');
   $('btnCloseAuth').onclick = () => $('authModal').classList.add('hidden');
   $('btnSignup').onclick = async () => {
