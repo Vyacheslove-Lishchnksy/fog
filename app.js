@@ -4,6 +4,9 @@
   const LS_KEY = 'fow_cells_v1';
   const R = 6378137;
   const MIN_FOG_ZOOM = 13; // нижче — суцільний туман, без порізки на клітинки
+  // DEBUG=true: локалка і dev-збірка (кнопка ходьби, мітка версії).
+  // На prod (APP_DEBUG=false) debug ховається. Без config.js — увімкнено.
+  const DEBUG = (window.FOW_CONFIG || {}).DEBUG !== false;
 
   const $ = (id) => document.getElementById(id);
   const toast = (msg) => {
@@ -314,6 +317,10 @@
   function updateAuthUI() { $('btnAuth').textContent = userId ? 'Акаунт ✓' : 'Увійти'; }
 
   // ---------- UI ----------
+  if (!DEBUG) {
+    $('btnDebug').style.display = 'none';
+    $('appVer').style.display = 'none';
+  }
   $('btnLocate').onclick = locateOnce;
   $('btnTrack').onclick = toggleTrack;
   $('btnAuth').onclick = () => $('authModal').classList.remove('hidden');
