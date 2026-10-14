@@ -3,6 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "python -m http.server 8000"
+    "start": "npm run dev",
+    "dev": "python scripts/setmode.py dev && python -m http.server 8000",
+    "prod": "python scripts/setmode.py prod && python -m http.server 8001"
   }
 }

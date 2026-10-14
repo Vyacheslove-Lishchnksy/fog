@@ -4,6 +4,9 @@
   const LS_KEY = 'fow_cells_v1';
   const R = 6378137;
   const MIN_FOG_ZOOM = 13; // нижче — суцільний туман, без порізки на клітинки
+  // DEBUG=true: локалка і dev-збірка (кнопка ходьби, мітка версії).
+  // На prod (APP_DEBUG=false) debug ховається. Без config.js — увімкнено.
+  const DEBUG = (window.FOW_CONFIG || {}).DEBUG !== false;
 
   const $ = (id) => document.getElementById(id);
   const toast = (msg) => {
@@ -59,7 +62,7 @@
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  // Замок на район міста. Demo його НЕ ставить, а реальний GPS може
+  // Замок на район міста. Debug-ходьба його НЕ ставить, а реальний GPS може
   // перезамкнути, якщо ти далеко (>20км) від старого дому — інакше
   // кнопка «Де я?» вперлась би в старі межі і не стрибнула б.
   let homeCenter = null;
@@ -173,7 +176,7 @@
     return out;
   }
 
-  // doLock=true тільки для реального GPS. Demo замок не ставить,
+  // doLock=true тільки для реального GPS. Debug-ходьба замок не ставить,
   // інакше тест з Києва блокував би стрибок до твого справжнього міста.
   function revealAt(latlng, moveMap = false, doLock = false) {
     const cells = cellsAround(latlng, REVEAL_RADIUS);
@@ -314,6 +317,10 @@
   function updateAuthUI() { $('btnAuth').textContent = userId ? 'Акаунт ✓' : 'Увійти'; }
 
   // ---------- UI ----------
+  if (!DEBUG) {
+    $('btnDebug').style.display = 'none';
+    $('appVer').style.display = 'none';
+  }
   $('btnLocate').onclick = locateOnce;
   $('btnTrack').onclick = toggleTrack;
   $('btnAuth').onclick = () => $('authModal').classList.remove('hidden');
@@ -333,17 +340,6 @@
     if (supabase) await supabase.auth.signOut();
     userId = null; updateAuthUI();
     $('authModal').classList.add('hidden');
-  };
-
-  $('btnDemo').onclick = () => {
-    const center = map.getCenter();
-    let i = 0;
-    toast('Demo: симулюю прогулянку...');
-    const t = setInterval(() => {
-      const ll = L.latLng(center.lat + Math.sin(i / 6) * 0.004, center.lng + (i * 0.0004));
-      revealAt(ll, i === 0, false); // demo замок не ставить
-      if (++i > 60) { clearInterval(t); persistLocal(true); }
-    }, 200);
   };
 
   // ---------- DEBUG: віртуальна ходьба без GPS ----------
