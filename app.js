@@ -62,7 +62,7 @@
     attribution: '&copy; OpenStreetMap'
   }).addTo(map);
 
-  // Замок на район міста. Demo його НЕ ставить, а реальний GPS може
+  // Замок на район міста. Debug-ходьба його НЕ ставить, а реальний GPS може
   // перезамкнути, якщо ти далеко (>20км) від старого дому — інакше
   // кнопка «Де я?» вперлась би в старі межі і не стрибнула б.
   let homeCenter = null;
@@ -176,7 +176,7 @@
     return out;
   }
 
-  // doLock=true тільки для реального GPS. Demo замок не ставить,
+  // doLock=true тільки для реального GPS. Debug-ходьба замок не ставить,
   // інакше тест з Києва блокував би стрибок до твого справжнього міста.
   function revealAt(latlng, moveMap = false, doLock = false) {
     const cells = cellsAround(latlng, REVEAL_RADIUS);
@@ -340,17 +340,6 @@
     if (supabase) await supabase.auth.signOut();
     userId = null; updateAuthUI();
     $('authModal').classList.add('hidden');
-  };
-
-  $('btnDemo').onclick = () => {
-    const center = map.getCenter();
-    let i = 0;
-    toast('Demo: симулюю прогулянку...');
-    const t = setInterval(() => {
-      const ll = L.latLng(center.lat + Math.sin(i / 6) * 0.004, center.lng + (i * 0.0004));
-      revealAt(ll, i === 0, false); // demo замок не ставить
-      if (++i > 60) { clearInterval(t); persistLocal(true); }
-    }, 200);
   };
 
   // ---------- DEBUG: віртуальна ходьба без GPS ----------

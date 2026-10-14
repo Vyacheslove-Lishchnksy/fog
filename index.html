@@ -7,7 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#111827" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="styles.css?v=10" />
+<link rel="stylesheet" href="styles.css?v=11" />
 </head>
 <body>
 <div id="map"></div>
@@ -17,7 +17,7 @@
   <div class="stats">
     <span id="statCells">0</span> клітинок
     <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
-    <span id="appVer" class="muted" title="Версія коду">v10</span>
+    <span id="appVer" class="muted" title="Версія коду">v11</span>
   </div>
   <button id="btnAuth" class="btn small">Увійти</button>
 </header>
@@ -25,7 +25,6 @@
 <div id="controls">
   <button id="btnLocate" class="btn primary">📍 Де я?</button>
   <button id="btnTrack" class="btn">▶ Трекінг</button>
-  <button id="btnDemo" class="btn ghost" title="Симулювати прогулянку для перевірки на ПК">Demo</button>
   <button id="btnDebug" class="btn ghost" title="Меню ходьби для перевірки без GPS">🛠</button>
 </div>
 
@@ -82,8 +81,8 @@
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=10"></script>
-<script src="app.js?v=10"></script>
+<script src="config.js?v=11"></script>
+<script src="app.js?v=11"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});
