@@ -5,6 +5,7 @@ export const visited = new Set(loadCells());
 export const route = { latlngs: [], last: null };
 export const pendingSync = new Set();
 let persistTimer = null;
+const ROUTE_KEY = 'fow_route_v1';
 
 function loadCells() {
   try {
@@ -23,6 +24,18 @@ export function persistLocal(immediate = false) {
     return;
   }
   try { localStorage.setItem(LS_KEY, JSON.stringify([...visited].slice(-50000))); } catch {}
+  saveRoute();
+}
+
+// Маршрут теж переживає перезавантаження (max 1000 точок, ~1м точність).
+export function saveRoute() {
+  try {
+    const pts = route.latlngs.map((p) => [+p.lat.toFixed(5), +p.lng.toFixed(5)]);
+    localStorage.setItem(ROUTE_KEY, JSON.stringify(pts.slice(-1000)));
+  } catch {}
+}
+export function loadRoute() {
+  try { return JSON.parse(localStorage.getItem(ROUTE_KEY)) || []; } catch { return []; }
 }
 
 export function resetProgress() {

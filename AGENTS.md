@@ -8,12 +8,12 @@ GPS/трекінг відкриває клітинки 70×70м в радіус�
 - `index.html` — шелл, підключає CDN (Leaflet, supabase-js), `config.js`, модуль `app.js`
 - `app.js` (12) — тільки порядок запуску: initFog → initUI → initDebug → drawFog → persist → locate
 - `js/core.js` — константи (CELL_METERS=70, REVEAL_RADIUS=120, MIN_FOG_ZOOM=13), DEBUG-флаг, `$`, `toast`
-- `js/store.js` — `visited: Set<cellId>`, маршрут, `pendingSync`, `persistLocal` (тротл 5с + pagehide), ліміт 50000
+- `js/store.js` — `visited: Set<cellId>`, маршрут (+сейв/рестор з localStorage), `pendingSync`, `persistLocal` (тротл 5с + pagehide), ліміт 50000
 - `js/world.js` — карта (зуми 11–18), тайли OSM (`keepBuffer: 2`, `updateWhenIdle`), `lockToHome` (бокс ±25км, relock >20км), маркери, маршрут (>5м, max 1000)
 - `js/grid.js` — `cellsAround` (клітинки в колі), `revealAt` (додати → persist → draw → sync → маркер → замок → зум)
 - `js/fog.js` — canvas туману + `drawFog`, `initFog` (перемальовка на viewreset/moveend/zoomend/resize)
 - `js/grain.js` — перлинне зерно поверх туману (плитка 128px, `source-atop`, фаза по світу)
-- `js/gps.js` — `locateOnce`, трекінг `watchPosition`, авто-місто через Nominatim
+- `js/gps.js` — `locateOnce`, трекінг `watchPosition`, авто-місто через Nominatim, фільтр стрибків (точність/швидкість/свіжість), Wake Lock
 - `js/cloud.js` — Supabase auth + `pullFromCloud` (limit 60000) + `queueSync`/`pushToCloud` (батчі 1000, upsert ignoreDuplicates)
 - `js/debug.js` — debug-ходьба (dpad, WASD/стрілки, клік-телепорт, скидання) — тільки dev
 - `js/stats.js` — статистика (`fow_stats_v1`: дистанція, дні, стрік) + 11 досягнень (`fow_ach_v1`), `bumpStats` з `revealAt`

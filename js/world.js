@@ -1,4 +1,4 @@
-import { route } from './store.js';
+import { route, loadRoute } from './store.js';
 
 // Карта: вантажимо тільки місто, не весь світ.
 export const map = L.map('map', {
@@ -34,6 +34,13 @@ export function lockToHome(ll, force = false) {
 
 export const routeLine = L.polyline([], { color: '#3b82f6', weight: 4, opacity: 0.9 }).addTo(map);
 let meMarker = null, accCircle = null;
+
+// Відновлюємо вчорашній маршрут з localStorage.
+for (const [la, ln] of loadRoute()) route.latlngs.push(L.latLng(la, ln));
+if (route.latlngs.length) {
+  route.last = route.latlngs[route.latlngs.length - 1];
+  routeLine.setLatLngs(route.latlngs);
+}
 
 export function showMe(latlng) {
   if (!meMarker) {
