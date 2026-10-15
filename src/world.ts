@@ -1,14 +1,15 @@
 import * as L from 'leaflet';
-import { route, loadRoute } from './store';
+import { route, loadRoute, loadLastPos } from './store';
 
-// Карта: вантажимо тільки місто, не весь світ.
+// Карта: стартуємо з останньої позиції (або Київ за замовчуванням).
+const startPos = loadLastPos();
 export const map = L.map('map', {
   zoomControl: false,
   minZoom: 11,
   maxZoom: 18,
   maxBoundsViscosity: 0.9,
   worldCopyJump: false,
-}).setView([50.4501, 30.5234], 13);
+}).setView(startPos || [50.4501, 30.5234], startPos ? 16 : 13);
 L.control.zoom({ position: 'topright' }).addTo(map);
 
 export const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {

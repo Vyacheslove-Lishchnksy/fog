@@ -6,9 +6,11 @@
 <title>Fog of War — моє місто</title>
 <link rel="manifest" href="./manifest.webmanifest" />
 <meta name="theme-color" content="#111827" />
+<link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin />
 </head>
 <body>
 <div id="map"></div>
+<script>document.body.insertAdjacentHTML('afterbegin','<div id="boot"><div class="spin"></div><div>Завантаження карти…</div></div>')</script>
 
 <header id="topbar">
   <div class="brand">🌫️ FOG <span id="cityName">моє місто</span></div>

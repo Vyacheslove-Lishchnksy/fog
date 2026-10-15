@@ -67,6 +67,10 @@ html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Seg
 .chk { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }
 #debugPanel .row .btn { padding: 8px 10px; font-size: 13px; }
 #btnDbgTeleport.on { background: #2563eb; border-color: #2563eb; }
+#boot { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; background: #0b1120; }
+#boot.hidden { display: none; }
+.spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid #374151; border-top-color: #3b82f6; animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
 #qrImg { width: min(64vw, 240px); height: auto; background: #fff; padding: 10px; border-radius: 12px; }
 
 /* ---------- статистика і досягнення ---------- */
