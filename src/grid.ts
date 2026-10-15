@@ -1,16 +1,17 @@
-import { $, CELL_METERS, REVEAL_RADIUS } from './core.js';
-import { visited, pendingSync, persistLocal, route } from './store.js';
-import { bumpStats } from './stats.js';
-import { map, lockToHome, pushRoute, showMe } from './world.js';
-import { drawFog } from './fog.js';
-import { queueSync } from './cloud.js';
+import * as L from 'leaflet';
+import { $, CELL_METERS, REVEAL_RADIUS } from './core';
+import { visited, pendingSync, persistLocal, route } from './store';
+import { map, lockToHome, pushRoute, showMe } from './world';
+import { drawFog } from './fog';
+import { queueSync } from './cloud';
+import { bumpStats } from './stats';
 
 // Клітинки навколо точки в радіусі radiusM.
-export function cellsAround(latlng, radiusM) {
+export function cellsAround(latlng: L.LatLng, radiusM: number): string[] {
   const c = L.CRS.EPSG3857.project(latlng);
   const steps = Math.ceil(radiusM / CELL_METERS);
   const cx0 = Math.floor(c.x / CELL_METERS), cy0 = Math.floor(c.y / CELL_METERS);
-  const out = [];
+  const out: string[] = [];
   for (let dx = -steps; dx <= steps; dx++) {
     for (let dy = -steps; dy <= steps; dy++) {
       const px = (cx0 + dx) * CELL_METERS + CELL_METERS / 2;
@@ -22,7 +23,7 @@ export function cellsAround(latlng, radiusM) {
 }
 
 // doLock=true тільки для реального GPS: debug-ходьба замок не ставить.
-export function revealAt(latlng, moveMap = false, doLock = false) {
+export function revealAt(latlng: L.LatLng, moveMap = false, doLock = false): void {
   const cells = cellsAround(latlng, REVEAL_RADIUS);
   let added = 0;
   for (let i = 0; i < cells.length; i++) {
@@ -36,7 +37,7 @@ export function revealAt(latlng, moveMap = false, doLock = false) {
     drawFog();
     queueSync();
   } else {
-    $('statCells').textContent = visited.size;
+    $('statCells').textContent = String(visited.size);
   }
   showMe(latlng);
   if (doLock) lockToHome(latlng, moveMap);
