@@ -7,7 +7,7 @@ import { getStats, achList, checkAch } from './stats';
 // якщо URL зміниться — перегенеруй qr.svg).
 const SHARE_URL = (import.meta.env.VITE_SHARE_URL as string | undefined) || 'https://fog-0tou.onrender.com/';
 function renderShare(): void {
-  let m = $('shareModal');
+  let m = document.getElementById('shareModal'); // може ще не існувати — тут null ок
   if (!m) {
     m = document.createElement('div');
     m.id = 'shareModal';
