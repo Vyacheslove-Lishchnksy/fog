@@ -1,17 +1,19 @@
-import { $, toast } from './core.js';
-import { persistLocal } from './store.js';
-import { revealAt } from './grid.js';
-import { map, showAccuracy } from './world.js';
+import * as L from 'leaflet';
+import { $, toast } from './core';
+import { persistLocal } from './store';
+import { revealAt } from './grid';
+import { map, showAccuracy } from './world';
 
-let watchId = null, tracking = false;
-let wakeLock = null;
+let watchId = 0;
+let tracking = false;
+let wakeLock: { release(): Promise<void> } | null = null;
 
 // Фільтр сміттєвих фіксів (повернення з фону дає стрибки):
-const MAX_ACC = 150;   // грубіше — ігнор (малює не ті клітинки)
-const MAX_SPEED = 55;  // м/с — швидше не їде навіть авто
+const MAX_ACC = 150; // грубіше — ігнор (малює не ті клітинки)
+const MAX_SPEED = 55; // м/с — швидше не їде навіть авто
 const MAX_AGE = 30000; // фікс старіший 30с — протухлий
-let lastFix = null;
-function goodFix(pos) {
+let lastFix: { ll: L.LatLng; t: number } | null = null;
+function goodFix(pos: GeolocationPosition): boolean {
   if (!pos.coords) return false;
   if (Date.now() - pos.timestamp > MAX_AGE) return false;
   if (pos.coords.accuracy && pos.coords.accuracy > MAX_ACC) return false;
@@ -25,44 +27,45 @@ function goodFix(pos) {
 
 // Wake Lock: екран не гасне під час трекінгу, інакше телефон
 // зупиняє GPS у фоні (обмеження мобільних браузерів, не баг).
-async function holdScreen() {
+async function holdScreen(): Promise<void> {
   try {
-    if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-  } catch {}
+    const nav = navigator as Navigator & { wakeLock?: { request(t: string): Promise<{ release(): Promise<void> }> } };
+    if (nav.wakeLock) wakeLock = await nav.wakeLock.request('screen');
+  } catch { /* без замка трекінг все одно працює */ }
 }
-function freeScreen() {
-  try { wakeLock && wakeLock.release(); } catch {}
+function freeScreen(): void {
+  try { void wakeLock?.release(); } catch { /* noop */ }
   wakeLock = null;
 }
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState === 'visible' && tracking) holdScreen();
+  if (document.visibilityState === 'visible' && tracking) void holdScreen();
 });
 
-function onPos(pos) {
+function onPos(pos: GeolocationPosition): void {
   if (!goodFix(pos)) return; // стрибок після фону — мовчки пропускаємо
   const ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
   lastFix = { ll, t: pos.timestamp };
   showAccuracy(ll, pos.coords.accuracy || 30);
   revealAt(ll, false, true);
-  detectCity(ll);
+  void detectCity(ll);
 }
 
-function onPosErr(err) { toast('GPS недоступний: ' + err.message); }
+function onPosErr(err: GeolocationPositionError): void { toast('GPS недоступний: ' + err.message); }
 
-export function locateOnce() {
+export function locateOnce(): void {
   if (!('geolocation' in navigator)) return toast('Браузер без GPS');
   navigator.geolocation.getCurrentPosition(
     (p) => {
       const ll = L.latLng(p.coords.latitude, p.coords.longitude);
       revealAt(ll, true, true);
-      detectCity(ll);
+      void detectCity(ll);
       toast('Позицію знайдено');
     },
-    onPosErr, { enableHighAccuracy: true, timeout: 12000 }
+    onPosErr, { enableHighAccuracy: true, timeout: 12000 },
   );
 }
 
-export function toggleTrack() {
+export function toggleTrack(): void {
   if (tracking) {
     navigator.geolocation.clearWatch(watchId);
     tracking = false;
@@ -76,21 +79,21 @@ export function toggleTrack() {
   watchId = navigator.geolocation.watchPosition(onPos, onPosErr,
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
   tracking = true;
-  holdScreen();
+  void holdScreen();
   $('btnTrack').textContent = '⏸ Стоп';
   toast('Трекінг увімкнено — іди, туман відкриється (екран не гасне)');
 }
 
 // Місто автоматично по першому GPS-фіксу.
 let cityDone = false;
-async function detectCity(ll) {
+async function detectCity(ll: L.LatLng): Promise<void> {
   if (cityDone) return;
   cityDone = true;
   try {
-    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${ll.lat}&lon=${ll.lng}&format=json`)
-      .then((x) => x.json());
+    const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${ll.lat}&lon=${ll.lng}&format=json`);
+    const r = (await res.json()) as { address?: Record<string, string>; display_name?: string };
     const a = r.address || {};
-    const city = a.city || a.town || a.village || a.municipality || a.county || r.display_name?.split(',')[0] || '';
+    const city = a['city'] || a['town'] || a['village'] || a['municipality'] || a['county'] || r.display_name?.split(',')[0] || '';
     if (city) $('cityName').textContent = '— ' + city;
-  } catch {}
+  } catch { /* офлайн — місто лишиться за замовчуванням */ }
 }

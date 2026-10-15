@@ -4,10 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>Fog of War — моє місто</title>
-<link rel="manifest" href="manifest.webmanifest" />
+<link rel="manifest" href="./manifest.webmanifest" />
 <meta name="theme-color" content="#111827" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<link rel="stylesheet" href="styles.css?v=12" />
 </head>
 <body>
 <div id="map"></div>
@@ -17,7 +15,7 @@
   <div class="stats">
     <span id="statCells">0</span> клітинок
     <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
-    <span id="appVer" class="muted" title="Версія коду">v21</span>
+    <span id="appVer" class="muted" title="Версія коду">…</span>
   </div>
   <button id="btnAuth" class="btn small">Увійти</button>
 </header>
@@ -62,10 +60,11 @@
   </div>
   <div class="muted">Клавіатура: стрілки / WASD = крок</div>
 </div>
+
 <div id="authModal" class="modal hidden">
   <div class="modal-card">
     <h3>Онлайн-прогрес</h3>
-    <p class="muted">Без ключа Supabase працює локально. Додай ключ в <code>config.js</code> — і прогрес буде зберігатись в онлайні за акаунтом.</p>
+    <p class="muted">Без ключів Supabase працює локально. Додай їх в <code>.env.local</code> (дивись <code>.env.example</code>).</p>
     <input id="email" type="email" placeholder="email" autocomplete="username" />
     <input id="password" type="password" placeholder="пароль" autocomplete="current-password" />
     <div class="row">
@@ -81,15 +80,11 @@
 </div>
 
 <div id="toast" class="hidden"></div>
-
 <div id="statsModal" class="modal hidden">
   <div class="modal-card" id="statsCard"></div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="config.js?v=21"></script>
-<script type="module" src="app.js?v=21"></script>
+<script type="module" src="/src/main.ts"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(()=>{});

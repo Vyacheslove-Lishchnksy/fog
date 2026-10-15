@@ -1,12 +1,19 @@
-import { $, toast } from './core.js';
-import { visited } from './store.js';
+import { toast } from './core';
+import { visited } from './store';
 
 const STATS_KEY = 'fow_stats_v1';
 const ACH_KEY = 'fow_ach_v1';
 const CELL_M2 = 70 * 70;
 
+export interface StatsSnapshot {
+  cells: number; areaKm2: number; totalKm: number; streak: number;
+  days: number; today: number; best: { date: string; n: number } | null;
+  night: boolean; early: boolean;
+}
+interface Ach { id: string; icon: string; name: string; desc: string; test: (s: StatsSnapshot) => boolean }
+
 // Досягнення: test отримує знімок статистики.
-const ACH = [
+const ACH: Ach[] = [
   { id: 'step1', icon: '👣', name: 'Перший крок', desc: 'Відкрий першу клітинку', test: (s) => s.cells >= 1 },
   { id: 'c100', icon: '💯', name: 'Сотня', desc: '100 клітинок', test: (s) => s.cells >= 100 },
   { id: 'c1000', icon: '🏙️', name: 'Тисяча', desc: '1000 клітинок', test: (s) => s.cells >= 1000 },
@@ -20,31 +27,34 @@ const ACH = [
   { id: 'early', icon: '🐦', name: 'Ранкова пташка', desc: 'Відкривай о 5–7 ранку', test: (s) => s.early },
 ];
 
-let stats = loadStats();
-let unlocked = loadAch();
-let statsTimer = null;
+interface StatsState { totalDistM: number; perDay: Record<string, number>; lastActive: string; streak: number; night: boolean; early: boolean }
+let stats: StatsState = loadStats();
+const unlocked: Set<string> = loadAch();
+let statsTimer = 0;
 
-function loadStats() {
-  try { const s = JSON.parse(localStorage.getItem(STATS_KEY)); if (s && s.perDay) return s; } catch {}
+function loadStats(): StatsState {
+  try { const s = JSON.parse(localStorage.getItem(STATS_KEY) || 'null') as Partial<StatsState> | null; if (s && s.perDay) return s as StatsState; } catch { /* чистий старт */ }
   return { totalDistM: 0, perDay: {}, lastActive: '', streak: 0, night: false, early: false };
 }
-function loadAch() {
-  try { return new Set(JSON.parse(localStorage.getItem(ACH_KEY)) || []); } catch { return new Set(); }
+function loadAch(): Set<string> {
+  try { return new Set(JSON.parse(localStorage.getItem(ACH_KEY) || '[]') as string[]); } catch { return new Set(); }
 }
-function saveStats() {
-  try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch {}
+function saveStats(): void {
+  try { localStorage.setItem(STATS_KEY, JSON.stringify(stats)); } catch { /* quota */ }
 }
-function saveAch() {
-  try { localStorage.setItem(ACH_KEY, JSON.stringify([...unlocked])); } catch {}
+export function getStats(): StatsSnapshot {
+  const days = Object.keys(stats.perDay);
+  const best = days.reduce((m, d) => (stats.perDay[d] as number > (stats.perDay[m] || 0) ? d : m), days[0] || '');
+  return {
+    cells: visited.size, areaKm2: (visited.size * CELL_M2) / 1e6, totalKm: stats.totalDistM / 1000,
+    streak: stats.streak, days: days.length, today: stats.perDay[dayKey()] || 0,
+    best: best ? { date: best, n: stats.perDay[best] as number } : null,
+    night: stats.night, early: stats.early,
+  };
 }
-function queueSaveStats() {
-  clearTimeout(statsTimer);
-  statsTimer = setTimeout(saveStats, 5000);
-}
-const dayKey = (d = new Date()) => d.toISOString().slice(0, 10);
 
 // Викликається з revealAt на кожну точку (added може бути 0).
-export function bumpStats(added, distM) {
+export function bumpStats(added: number, distM: number): void {
   const today = dayKey();
   if (distM > 0) stats.totalDistM += distM;
   if (added > 0) {
@@ -59,27 +69,12 @@ export function bumpStats(added, distM) {
     const cutoff = dayKey(new Date(Date.now() - 90 * 864e5));
     for (const k of Object.keys(stats.perDay)) if (k < cutoff) delete stats.perDay[k];
   }
-  queueSaveStats();
+  clearTimeout(statsTimer);
+  statsTimer = window.setTimeout(saveStats, 5000);
   checkAch(false);
 }
 
-export function getStats() {
-  const days = Object.keys(stats.perDay);
-  const best = days.reduce((m, d) => (stats.perDay[d] > (stats.perDay[m] || 0) ? d : m), days[0] || '');
-  return {
-    cells: visited.size,
-    areaKm2: (visited.size * CELL_M2) / 1e6,
-    totalKm: stats.totalDistM / 1000,
-    streak: stats.streak,
-    days: days.length,
-    today: stats.perDay[dayKey()] || 0,
-    best: best ? { date: best, n: stats.perDay[best] } : null,
-    night: stats.night,
-    early: stats.early,
-  };
-}
-
-export function checkAch(silent) {
+export function checkAch(silent: boolean): boolean {
   const s = getStats();
   let changed = false;
   for (const a of ACH) {
@@ -89,11 +84,11 @@ export function checkAch(silent) {
       if (!silent) toast(`🏆 ${a.icon} ${a.name}!`);
     }
   }
-  if (changed) saveAch();
+  if (changed) { try { localStorage.setItem(ACH_KEY, JSON.stringify([...unlocked])); } catch { /* quota */ } }
   return changed;
 }
 
-export function achList() {
-  const s = getStats();
+export function achList(): Array<Ach & { done: boolean }> {
   return ACH.map((a) => ({ ...a, done: unlocked.has(a.id) }));
 }
+const dayKey = (d = new Date()): string => d.toISOString().slice(0, 10);

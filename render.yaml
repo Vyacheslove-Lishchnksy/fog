@@ -1,32 +1,30 @@
-# Render Blueprint: два статик-сайти з одного репозиторія.
-# Застосування: dashboard.render.com -> New -> Blueprint -> вибрати репозиторій.
-# Або створити два Static Site вручну (гілки main і dev, Publish Directory ".",
-# Build Command "bash inject-config.sh") і задати env в веб-панелі.
 services:
   - type: web
     name: fow-prod
     env: static
     branch: main
-    buildCommand: bash inject-config.sh
-    staticPublishPath: .
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
     envVars:
-      - key: SUPABASE_URL
+      - key: VITE_SUPABASE_URL
         sync: false
-      - key: SUPABASE_ANON_KEY
+      - key: VITE_SUPABASE_ANON_KEY
         sync: false
-      - key: APP_DEBUG
+      - key: VITE_APP_DEBUG
         value: false
+      - key: VITE_SHARE_URL
+        value: https://fog-0tou.onrender.com/
 
   - type: web
     name: fow-dev
     env: static
     branch: dev
-    buildCommand: bash inject-config.sh
-    staticPublishPath: .
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
     envVars:
-      - key: SUPABASE_URL
+      - key: VITE_SUPABASE_URL
         sync: false
-      - key: SUPABASE_ANON_KEY
+      - key: VITE_SUPABASE_ANON_KEY
         sync: false
-      - key: APP_DEBUG
+      - key: VITE_APP_DEBUG
         value: true

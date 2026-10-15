@@ -1,10 +1,24 @@
 {
   "name": "fog-war",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "start": "npm run dev",
-    "dev": "python scripts/setmode.py dev && python scripts/serve.py 8000",
-    "prod": "python scripts/setmode.py prod && python scripts/serve.py 8001"
+    "dev": "vite --port 8000",
+    "build": "tsc && vite build",
+    "preview": "vite preview --port 8001",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.3",
+    "leaflet": "1.9.4"
+  },
+  "devDependencies": {
+    "@types/leaflet": "1.9.22",
+    "happy-dom": "21.0.1",
+    "typescript": "7.0.2",
+    "vite": "8.3.4",
+    "vitest": "5.0.4"
   }
 }

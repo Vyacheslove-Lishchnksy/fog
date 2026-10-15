@@ -1,56 +1,59 @@
-import { $, toast } from './core.js';
-import { visited, pendingSync, persistLocal } from './store.js';
-import { drawFog } from './fog.js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { $, toast } from './core';
+import { visited, pendingSync, persistLocal } from './store';
+import { drawFog } from './fog';
 
-// Онлайн-прогрес за акаунтом (Supabase). Без ключів — тільки локально.
-export const session = { supabase: null, userId: null };
-let saveTimer = null;
+// Онлайн-прогрес за акаунтом. Без ключів — тільки локально.
+export const session: { supabase: SupabaseClient | null; userId: string | null } = { supabase: null, userId: null };
+let saveTimer = 0;
 
-export function initSupabase() {
-  const cfg = window.FOW_CONFIG || {};
-  const ok = cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && window.supabase;
-  if (!ok) {
+export function initSupabase(): void {
+  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  if (!url || !key) {
     $('statSync').textContent = '● local';
     $('statSync').className = 'sync-off';
     return;
   }
-  session.supabase = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY);
+  session.supabase = createClient(url, key);
   session.supabase.auth.onAuthStateChange((_ev, s) => {
     session.userId = s?.user?.id || null;
     updateAuthUI();
-    if (session.userId) pullFromCloud();
+    if (session.userId) void pullFromCloud();
   });
-  session.supabase.auth.getSession().then(({ data }) => {
+  void session.supabase.auth.getSession().then(({ data }) => {
     session.userId = data.session?.user?.id || null;
     updateAuthUI();
-    if (session.userId) pullFromCloud();
+    if (session.userId) void pullFromCloud();
   });
   $('statSync').textContent = '● online';
   $('statSync').className = 'sync-on';
 }
 
-async function pullFromCloud() {
+async function pullFromCloud(): Promise<void> {
   const { supabase, userId } = session;
   if (!supabase || !userId) return;
   toast('Завантажую відкриті зони...');
   const { data, error } = await supabase.from('fog_cells').select('cell_id').limit(60000);
   if (error) return toast('Помилка завантаження: ' + error.message);
   let added = 0;
-  for (const row of data) if (!visited.has(row.cell_id)) { visited.add(row.cell_id); added++; }
+  for (const row of data as Array<{ cell_id: string }>) {
+    if (!visited.has(row.cell_id)) { visited.add(row.cell_id); added++; }
+  }
   persistLocal(true);
   drawFog();
   queueSync(true);
   toast(`Готово: ${visited.size} клітинок (${added} з хмари)`);
 }
 
-export function queueSync(immediate = false) {
+export function queueSync(immediate = false): void {
   const { supabase, userId } = session;
   if (!supabase || !userId || pendingSync.size === 0) return;
   clearTimeout(saveTimer);
-  saveTimer = setTimeout(pushToCloud, immediate ? 500 : 5000);
+  saveTimer = window.setTimeout(() => void pushToCloud(), immediate ? 500 : 5000);
 }
 
-async function pushToCloud() {
+async function pushToCloud(): Promise<void> {
   const { supabase, userId } = session;
   if (!supabase || !userId || pendingSync.size === 0) return;
   const rows = [...pendingSync].map((cell_id) => ({ user_id: userId, cell_id }));
@@ -65,6 +68,6 @@ async function pushToCloud() {
   }
 }
 
-export function updateAuthUI() {
+export function updateAuthUI(): void {
   $('btnAuth').textContent = session.userId ? 'Акаунт ✓' : 'Увійти';
 }
