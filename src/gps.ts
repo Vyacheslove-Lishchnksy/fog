@@ -2,13 +2,13 @@ import * as L from 'leaflet';
 import { $, toast } from './core';
 import { persistLocal } from './store';
 import { revealAt } from './grid';
-import { map, showAccuracy } from './world';
+import { map, showAccuracy, clearRoute } from './world';
 
 let watchId = 0;
 let tracking = false;
 let wakeLock: { release(): Promise<void> } | null = null;
 
-// Фільтр сміттєвих фіксів (повернення з фону дає стрибки):
+// Фільтр сміттєвих фіксів (повернення з фону дає стрибки).
 const MAX_ACC = 150; // грубіше — ігнор (малює не ті клітинки)
 const MAX_SPEED = 55; // м/с — швидше не їде навіть авто
 const MAX_AGE = 30000; // фікс старіший 30с — протухлий
@@ -25,8 +25,7 @@ function goodFix(pos: GeolocationPosition): boolean {
   return true;
 }
 
-// Wake Lock: екран не гасне під час трекінгу, інакше телефон
-// зупиняє GPS у фоні (обмеження мобільних браузерів, не баг).
+// Wake Lock: екран не гасне під час трекінгу, інакше телефон зупиняє GPS у фоні.
 async function holdScreen(): Promise<void> {
   try {
     const nav = navigator as Navigator & { wakeLock?: { request(t: string): Promise<{ release(): Promise<void> }> } };
@@ -70,6 +69,7 @@ export function toggleTrack(): void {
     navigator.geolocation.clearWatch(watchId);
     tracking = false;
     freeScreen();
+    clearRoute(); // кінець трекінгу — прибираємо лінію з карти
     $('btnTrack').textContent = '▶ Трекінг';
     persistLocal(true);
     toast('Трекінг зупинено');
