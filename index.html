@@ -22,68 +22,87 @@
   <button id="btnAuth" class="btn small">Увійти</button>
 </header>
 
+<button id="btnPanel" class="btn ghost small panel-toggle" title="Панель точок і дебагу">📋</button>
+
 <div id="controls">
-  <button id="btnLocate" class="btn primary">📍 Де я?</button>
-  <button id="btnTrack" class="btn">▶ Трекінг</button>
-  <button id="btnStats" class="btn ghost" title="Статистика і досягнення">📊</button>
-  <button id="btnDebug" class="btn ghost" title="Меню ходьби для перевірки без GPS">🛠</button>
+	<button id="btnLocate" class="btn primary">📍 Де я?</button>
+	<button id="btnTrack" class="btn">▶ Трекінг</button>
+	<button id="btnStats" class="btn ghost" title="Статистика і досягнення">📊</button>
 </div>
 
-<div id="debugPanel" class="hidden">
-  <div class="dbg-head">
-    <b>🛠 Ходьба (debug)</b>
-    <button id="btnDbgClose" class="btn small ghost">✕</button>
-  </div>
-  <div id="dbgPos" class="muted">клікни «Старт» або клік по карті</div>
-  <div class="dpad">
-    <span></span><button data-step="0,1">▲</button><span></span>
-    <button data-step="-1,0">◀</button><span></span><button data-step="1,0">▶</button>
-    <span></span><button data-step="0,-1">▼</button><span></span>
-  </div>
-  <div class="row">
-    <select id="dbgStep">
-      <option value="20">крок 20м</option>
-      <option value="70" selected>крок 70м</option>
-      <option value="200">крок 200м</option>
-    </select>
-    <label class="chk"><input type="checkbox" id="dbgFollow" checked /> слідкувати</label>
-  </div>
-  <div class="row">
-    <label class="chk">✨ <input id="dbgGrain" type="range" min="0" max="25" value="8" title="Щільність зерна" /></label>
-  </div>
-  <div class="row">
-    <button id="btnDbgStart" class="btn primary">📍 Старт з центру</button>
-  </div>
-  <div class="row">
-    <button id="btnDbgTeleport" class="btn">👆 Клік=телепорт: вимк</button>
-  </div>
-  <div class="row">
-    <button id="btnDbgReset" class="btn ghost">Скинути туман</button>
-  </div>
-  <div class="muted">Клавіатура: стрілки / WASD = крок</div>
-</div>
+<aside id="leftPanel" class="hidden">
+	<div class="tabs">
+		<button class="tab active" data-tab="points">📌 Точки</button>
+		<button class="tab" data-tab="debug">🛠 Дебаг</button>
+	</div>
+
+	<div class="tab-content" id="tab-points">
+		<div class="dbg-head">
+			<b>📌 Мої точки</b>
+			<button id="btnPointListClear" class="btn small ghost">Очистити всі</button>
+		</div>
+		<div id="pointsList" class="muted points-list">Точок немає</div>
+		<div class="row">
+			<label class="chk">✨ <input id="btnPointToggle" type="checkbox" title="Режим поставити точку на карті" /></label>
+		</div>
+		<p class="muted small-hint">Клік по відкритій частині карти — поставити точку</p>
+	</div>
+
+	<div class="tab-content hidden" id="tab-debug">
+		<div class="dbg-head">
+			<b>🛠 Ходьба (debug)</b>
+		</div>
+		<div id="dbgPos" class="muted">клікни «Старт» або клік по карті</div>
+		<div class="dpad">
+			<span></span><button data-step="0,1">▲</button><span></span>
+			<button data-step="-1,0">◀</button><span></span><button data-step="1,0">▶</button>
+			<span></span><button data-step="0,-1">▼</button><span></span>
+		</div>
+		<div class="row">
+			<select id="dbgStep">
+				<option value="20">крок 20м</option>
+				<option value="70" selected>крок 70м</option>
+				<option value="200">крок 200м</option>
+			</select>
+			<label class="chk"><input type="checkbox" id="dbgFollow" checked /> слідкувати</label>
+		</div>
+		<div class="row">
+			<label class="chk">✨ <input id="dbgGrain" type="range" min="0" max="25" value="8" title="Щільність зерна" /></label>
+		</div>
+		<div class="row">
+			<button id="btnDbgStart" class="btn primary">📍 Старт з центру</button>
+		</div>
+		<div class="row">
+			<button id="btnDbgTeleport" class="btn">👆 Клік=телепорт: вимк</button>
+		</div>
+		<div class="row">
+			<button id="btnDbgReset" class="btn ghost">Скинути туман</button>
+		</div>
+		<div class="muted">Клавіатура: стрілки / WASD = крок</div>
+	</div>
+</aside>
 
 <div id="authModal" class="modal hidden">
-  <div class="modal-card">
-    <h3>Онлайн-прогрес</h3>
-    <p class="muted">Без ключів Supabase працює локально. Додай їх в <code>.env.local</code> (дивись <code>.env.example</code>).</p>
-    <input id="email" type="email" placeholder="email" autocomplete="username" />
-    <input id="password" type="password" placeholder="пароль" autocomplete="current-password" />
-    <div class="row">
-      <button id="btnLogin" class="btn primary">Увійти</button>
-      <button id="btnSignup" class="btn">Реєстрація</button>
-    </div>
-    <div class="row">
-      <button id="btnLogout" class="btn ghost">Вийти</button>
-      <button id="btnCloseAuth" class="btn ghost">Закрити</button>
-    </div>
-    <p id="authMsg" class="muted"></p>
-  </div>
+	<div class="modal-card">
+		<h3>Онлайн-прогрес</h3>
+		<p class="muted">Без ключів Supabase працює локально. Додай їх в <code>.env.local</code> (дивись <code>.env.example</code>).</p>
+		<input id="email" type="email" placeholder="email" autocomplete="username" />
+		<input id="password" type="password" placeholder="пароль" autocomplete="current-password" />
+		<div class="row">
+			<button id="btnLogin" class="btn primary">Увійти</button>
+			<button id="btnSignup" class="btn">Реєстрація</button>
+		</div>
+		<div class="row">
+			<button id="btnLogout" class="btn ghost">Вийти</button>
+			<button id="btnCloseAuth" class="btn ghost">Закрити</button>
+		</div>
+		<p id="authMsg" class="muted"></p>
+	</div>
 </div>
 
 <div id="toast" class="hidden"></div>
 <div id="statsModal" class="modal hidden">
-  <div class="modal-card" id="statsCard"></div>
+	<div class="modal-card" id="statsCard"></div>
 </div>
 
 <script type="module" src="/src/main.ts"></script>

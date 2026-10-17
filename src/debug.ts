@@ -42,9 +42,7 @@ function dbgStep(dxM: number, dyM: number): void {
 }
 
 export function initDebug(): void {
-  const panel = $('debugPanel');
-  $('btnDebug').onclick = () => { panel.classList.toggle('hidden'); if (!panel.classList.contains('hidden')) dbgShow(); };
-  $('btnDbgClose').onclick = () => panel.classList.add('hidden');
+  const panel = $('leftPanel');
   $('btnDbgStart').onclick = () => { dbgWalkTo(map.getCenter(), true); toast('Ходок на центрі — ходи стрілками'); };
   $('btnDbgTeleport').onclick = (e) => {
     dbgTeleport = !dbgTeleport;

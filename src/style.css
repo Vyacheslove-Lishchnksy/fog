@@ -44,14 +44,51 @@ html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Seg
 /* зум-контрол нижче топ-панелі, щоб не ховався під нею */
 .leaflet-top.leaflet-right { top: 64px; }
 
-/* ---------- debug-панель ходьби ---------- */
-#debugPanel {
-  position: fixed; right: 10px; bottom: 78px; z-index: 1500;
-  width: 230px; background: rgba(17,24,39,.95); backdrop-filter: blur(8px);
+/* ---------- ліва панель з вкладками ---------- */
+#leftPanel {
+  position: fixed; left: 10px; top: 74px; bottom: 74px;
+  width: 260px; background: rgba(17,24,39,.97); backdrop-filter: blur(8px);
   border: 1px solid #374151; border-radius: 16px; padding: 12px;
-  display: flex; flex-direction: column; gap: 8px;
+  z-index: 1500; display: flex; flex-direction: column; gap: 10px;
+  transform: translateX(-105%);
+  transition: transform 0.25s ease;
 }
-#debugPanel.hidden { display: none; }
+#leftPanel.hidden { display: none; }
+#leftPanel.open { transform: translateX(0); }
+
+/* ---------- кнопка виклику панелі (під топбаром зліва) ---------- */
+.panel-toggle {
+  position: fixed;
+  top: 74px;
+  left: 10px;
+  z-index: 1100;
+  background: #374151 !important;
+  border: 1px solid #4b5563 !important;
+}
+#leftPanel .tabs {
+  display: flex; gap: 6px; border-bottom: 1px solid #374151; padding-bottom: 6px;
+}
+#leftPanel .tab {
+  flex: 1; padding: 6px 8px; border-radius: 8px;
+  background: transparent; border: 1px solid transparent; color: #fff; cursor: pointer; font-size: 13px;
+}
+#leftPanel .tab.active { background: #374151; border-color: #4b5563; }
+#leftPanel .tab-content { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; }
+#leftPanel .tab-content.hidden { display: none; }
+#leftPanel .dbg-head { display: flex; align-items: center; justify-content: space-between; }
+#leftPanel .points-list { font-size: 12px; opacity: .85; }
+#leftPanel .muted { font-size: 12px; }
+#leftPanel .small-hint { font-size: 11px; opacity: .6; margin-top: 4px; }
+#leftPanel select { flex: 1; padding: 8px; border-radius: 10px; background: #111827; color: #fff; border: 1px solid #4b5563; font-size: 13px; }
+#leftPanel .row .btn { padding: 8px 10px; font-size: 13px; }
+
+/* ---------- tooltip назви точки ---------- */
+.point-tooltip {
+  background: #2563eb; color: #fff; padding: 2px 6px; border-radius: 4px;
+  font-size: 11px; white-space: nowrap; opacity: .95;
+}
+
+/* ---------- debug-панель ходьби (залишена для сумісності, але тепер у лівій панелі) ---------- */
 .dbg-head { display: flex; align-items: center; justify-content: space-between; }
 #dbgPos { font-size: 12px; word-break: break-all; }
 .dpad { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
@@ -60,12 +97,7 @@ html, body { margin: 0; height: 100%; font-family: system-ui, -apple-system, Seg
   background: #374151; color: #fff; font-size: 16px; cursor: pointer;
 }
 .dpad button:active { background: #2563eb; }
-#debugPanel select {
-  flex: 1; padding: 8px; border-radius: 10px;
-  background: #111827; color: #fff; border: 1px solid #4b5563;
-}
 .chk { display: flex; align-items: center; gap: 6px; font-size: 13px; opacity: .85; }
-#debugPanel .row .btn { padding: 8px 10px; font-size: 13px; }
 #btnDbgTeleport.on { background: #2563eb; border-color: #2563eb; }
 #boot { position: fixed; inset: 0; z-index: 3000; display: flex; flex-direction: column; gap: 12px; align-items: center; justify-content: center; background: #0b1120; }
 #boot.hidden { display: none; }
