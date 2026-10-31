@@ -4,6 +4,8 @@ import { session, initSupabase, updateAuthUI } from './cloud';
 import { getStats, achList, checkAch } from './stats';
 import { initPoints } from './points';
 import { initLeftPanel } from './left-panel';
+import { initSettingsPanel } from './settings-panel';
+import { t, applyLang } from './i18n';
 
 // QR на прод-сайт (qr.svg згенеровано під прод-URL з VITE_SHARE_URL;
 // якщо URL зміниться — перегенеруй qr.svg).
@@ -14,13 +16,14 @@ function renderShare(): void {
     m = document.createElement('div');
     m.id = 'shareModal';
     m.className = 'modal hidden';
-    m.innerHTML = `<div class="modal-card" style="align-items:center;text-align:center"><b>📱 На телефон</b><img id="qrImg" src="./qr.svg" alt="QR на сайт" /><div class="muted">${SHARE_URL}</div><button id="btnShareClose" class="btn ghost">Закрити</button></div>`;
+    m.innerHTML = `<div class="modal-card" style="align-items:center;text-align:center"><b data-i18n="modal.share.title">📱 На телефон</b><img id="qrImg" src="./qr.svg" alt="QR на сайт" /><div class="muted" data-i18n="share.subtitle">QR-код на телефон</div><div class="muted">${SHARE_URL}</div><button id="btnShareClose" class="btn ghost" data-i18n="modal.share.close">Закрити</button></div>`;
     document.body.appendChild(m);
     m.addEventListener('click', (e) => {
       const t = e.target as HTMLElement;
       if (t === m || t.id === 'btnShareClose') m?.classList.add('hidden');
     });
   }
+  applyLang();
   m.classList.remove('hidden');
 }
 function shareButton(): HTMLButtonElement {
@@ -35,21 +38,21 @@ function shareButton(): HTMLButtonElement {
 function renderStats(): void {
   const s = getStats();
   const rows = [
-    ['🧩 Клітинок', String(s.cells)],
-    ['🗺️ Площа', s.areaKm2.toFixed(2) + ' км²'],
-    ['🚶 Пройдено', s.totalKm.toFixed(1) + ' км'],
-    ['🔥 Стрік', s.streak + ' дн.'],
-    ['📅 Активних днів', String(s.days)],
-    ['✨ Сьогодні', '+' + s.today],
-    ['🏅 Рекорд дня', s.best ? `${s.best.n} (${s.best.date.slice(5)})` : '—'],
+    [t('stats.cells'), String(s.cells)],
+    [t('stats.area'), s.areaKm2.toFixed(2) + ' км²'],
+    [t('stats.distance'), s.totalKm.toFixed(1) + ' км'],
+    [t('stats.streak'), s.streak + ' дн.'],
+    [t('stats.days'), String(s.days)],
+    [t('stats.today'), '+' + s.today],
+    [t('stats.best'), s.best ? `${s.best.n} (${s.best.date.slice(5)})` : '—'],
   ].map(([k, v]) => `<div class="stat-row"><span>${k}</span><b>${v}</b></div>`).join('');
   const list = achList();
   const ach = list.map((a) =>
-    `<div class="ach${a.done ? ' on' : ''}"><span>${a.icon}</span><div><b>${a.name}</b><i>${a.desc}</i></div></div>`
+    `<div class="ach${a.done ? ' on' : ''}"><span>${a.icon}</span><div><b>${t(a.name)}</b><i>${t(a.desc)}</i></div></div>`
   ).join('');
   $('statsCard').innerHTML =
-    `<div class="dbg-head"><b>📊 Статистика</b><button id="btnStatsClose" class="btn small ghost">✕</button></div>` +
-    rows + `<h4>Досягнення ${list.filter((a) => a.done).length}/${list.length}</h4>` + ach;
+    `<div class="dbg-head"><b data-i18n="stats.title">📊 Статистика</b><button id="btnStatsClose" class="btn small ghost" data-i18n="modal.auth.close">✕</button></div>` +
+    rows + `<h4 data-i18n="stats.achievements">Досягнення ${list.filter((a) => a.done).length}/${list.length}</h4>` + ach;
   $('btnStatsClose').onclick = () => $('statsModal').classList.add('hidden');
 }
 
@@ -65,16 +68,16 @@ export function initUI(): void {
   $('btnAuth').onclick = () => $('authModal').classList.remove('hidden');
   $('btnCloseAuth').onclick = () => $('authModal').classList.add('hidden');
   $('btnSignup').onclick = async () => {
-    if (!session.supabase) return $('authMsg').textContent = 'Додай ключі Supabase в .env.local';
+    if (!session.supabase) return $('authMsg').textContent = t('modal.auth.msg.no-keys');
     const email = ($('email') as HTMLInputElement).value, password = ($('password') as HTMLInputElement).value;
     const { error } = await session.supabase.auth.signUp({ email, password });
-    $('authMsg').textContent = error ? error.message : 'Акаунт створено. Увійди.';
+    $('authMsg').textContent = error ? error.message : t('modal.auth.msg.created');
   };
   $('btnLogin').onclick = async () => {
-    if (!session.supabase) return $('authMsg').textContent = 'Додай ключі Supabase в .env.local';
+    if (!session.supabase) return $('authMsg').textContent = t('modal.auth.msg.no-keys');
     const email = ($('email') as HTMLInputElement).value, password = ($('password') as HTMLInputElement).value;
     const { error } = await session.supabase.auth.signInWithPassword({ email, password });
-    $('authMsg').textContent = error ? error.message : 'Успішно!';
+    $('authMsg').textContent = error ? error.message : t('modal.auth.msg.success');
     if (!error) $('authModal').classList.add('hidden');
   };
   $('btnLogout').onclick = async () => {
@@ -85,6 +88,7 @@ export function initUI(): void {
   };
   initSupabase();
   initLeftPanel();
+  initSettingsPanel();
   initPoints();
   checkAch(true); // ретро-розблокування за старий прогрес, тихо
 }

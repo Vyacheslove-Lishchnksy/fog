@@ -14,17 +14,17 @@ interface Ach { id: string; icon: string; name: string; desc: string; test: (s: 
 
 // Досягнення: test отримує знімок статистики.
 const ACH: Ach[] = [
-  { id: 'step1', icon: '👣', name: 'Перший крок', desc: 'Відкрий першу клітинку', test: (s) => s.cells >= 1 },
-  { id: 'c100', icon: '💯', name: 'Сотня', desc: '100 клітинок', test: (s) => s.cells >= 100 },
-  { id: 'c1000', icon: '🏙️', name: 'Тисяча', desc: '1000 клітинок', test: (s) => s.cells >= 1000 },
-  { id: 'km1', icon: '🚶', name: 'Кілометр', desc: 'Пройди 1 км', test: (s) => s.totalKm >= 1 },
-  { id: 'km10', icon: '🥾', name: 'Десятка', desc: 'Пройди 10 км', test: (s) => s.totalKm >= 10 },
-  { id: 'area1', icon: '🗺️', name: 'Квадратний кілометр', desc: 'Відкрий 1 км²', test: (s) => s.areaKm2 >= 1 },
-  { id: 'streak3', icon: '🔥', name: 'Три дні поспіль', desc: 'Гуляй 3 дні підряд', test: (s) => s.streak >= 3 },
-  { id: 'streak7', icon: '🌋', name: 'Тиждень без зупинки', desc: 'Гуляй 7 днів підряд', test: (s) => s.streak >= 7 },
-  { id: 'days10', icon: '📅', name: 'Регулярний', desc: '10 активних днів', test: (s) => s.days >= 10 },
-  { id: 'night', icon: '🦉', name: 'Нічний ходок', desc: 'Відкривай після 22:00', test: (s) => s.night },
-  { id: 'early', icon: '🐦', name: 'Ранкова пташка', desc: 'Відкривай о 5–7 ранку', test: (s) => s.early },
+  { id: 'step1', icon: '👣', name: 'ach.step1.name', desc: 'ach.step1.desc', test: (s) => s.cells >= 1 },
+  { id: 'c100', icon: '💯', name: 'ach.c100.name', desc: 'ach.c100.desc', test: (s) => s.cells >= 100 },
+  { id: 'c1000', icon: '🏙️', name: 'ach.c1000.name', desc: 'ach.c1000.desc', test: (s) => s.cells >= 1000 },
+  { id: 'km1', icon: '🚶', name: 'ach.km1.name', desc: 'ach.km1.desc', test: (s) => s.totalKm >= 1 },
+  { id: 'km10', icon: '🥾', name: 'ach.km10.name', desc: 'ach.km10.desc', test: (s) => s.totalKm >= 10 },
+  { id: 'area1', icon: '🗺️', name: 'ach.area1.name', desc: 'ach.area1.desc', test: (s) => s.areaKm2 >= 1 },
+  { id: 'streak3', icon: '🔥', name: 'ach.streak3.name', desc: 'ach.streak3.desc', test: (s) => s.streak >= 3 },
+  { id: 'streak7', icon: '🌋', name: 'ach.streak7.name', desc: 'ach.streak7.desc', test: (s) => s.streak >= 7 },
+  { id: 'days10', icon: '📅', name: 'ach.days10.name', desc: 'ach.days10.desc', test: (s) => s.days >= 10 },
+  { id: 'night', icon: '🦉', name: 'ach.night.name', desc: 'ach.night.desc', test: (s) => s.night },
+  { id: 'early', icon: '🐦', name: 'ach.early.name', desc: 'ach.early.desc', test: (s) => s.early },
 ];
 
 interface StatsState { totalDistM: number; perDay: Record<string, number>; lastActive: string; streak: number; night: boolean; early: boolean }

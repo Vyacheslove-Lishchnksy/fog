@@ -5,6 +5,7 @@ import { map } from './world';
 import { cellOf } from './grid';
 import { renderPointsList } from './point-list';
 import { askPointName } from './point-modal';
+import { t } from './i18n';
 
 const POINTS_KEY = 'fow_points_v1';
 export type Point = { lat: number; lng: number; label?: string };
@@ -26,15 +27,15 @@ function isRevealed(latlng: L.LatLng): boolean { return visited.has(cellOf(latln
 
 export async function addPoint(latlng: L.LatLng): Promise<void> {
   const p: Point = { lat: +latlng.lat.toFixed(5), lng: +latlng.lng.toFixed(5) };
-  if (points.some((q) => pointId(q) === pointId(p))) { toast('Така точка вже є'); return; }
+  if (points.some((q) => pointId(q) === pointId(p))) { toast(t('points.exists')); return; }
   const cell = cellOf(latlng);
-  if (!isRevealed(latlng)) { toast(`Туман: клітинка ${cell} не відкрита`); return; }
+  if (!isRevealed(latlng)) { toast(t('points.fog')); return; }
   const label = await askPointName();
   if (label === null) return;
   p.label = label || undefined;
   points.push(p); markers.push(makeMarker(p));
   savePoints(); redrawLayer(); renderPointsList(points);
-  toast('Точку додано (' + cell + ')');
+  toast(t('points.added') + ' (' + cell + ')');
 }
 
 export function removePoint(p: Point): void {
@@ -43,14 +44,14 @@ export function removePoint(p: Point): void {
   points.splice(i, 1); const m = markers.splice(i, 1)[0];
   m.off(); if (pointLayer) pointLayer.removeLayer(m); else map.removeLayer(m);
   savePoints(); renderPointsList(points);
-  toast('Точку видалено');
+  toast(t('points.removed'));
 }
 
 export function clearPoints(): void {
   for (const m of markers) { m.off(); if (pointLayer) pointLayer.removeLayer(m); else map.removeLayer(m); }
   markers.length = 0; points.length = 0; if (pointLayer) pointLayer.clearLayers();
   localStorage.removeItem(POINTS_KEY); renderPointsList(points);
-  toast('Усі точки видалені');
+  toast(t('points.removed.all'));
 }
 
 export function togglePointMode(): boolean {

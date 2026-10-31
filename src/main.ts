@@ -1,11 +1,15 @@
 import 'leaflet/dist/leaflet.css';
 import './style.css';
+import { initI18n, applyLang } from './i18n';
 import { persistLocal } from './store';
 import { drawFog, initFog } from './fog';
 import { locateOnce } from './gps';
 import { initUI } from './ui';
 import { initDebug } from './debug';
 import { tiles } from './world';
+
+initI18n();
+applyLang();
 
 initFog();
 initUI();

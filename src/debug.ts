@@ -5,6 +5,7 @@ import { map, clearRoute } from './world';
 import { drawFog } from './fog';
 import { setGrainAlpha } from './grain';
 import { revealAt } from './grid';
+import { t } from './i18n';
 
 // Віртуальна ходьба без GPS (тільки dev).
 let dbgPos: L.LatLng | null = null;
@@ -47,7 +48,7 @@ export function initDebug(): void {
   $('btnDbgTeleport').onclick = (e) => {
     dbgTeleport = !dbgTeleport;
     const b = e.currentTarget as HTMLElement;
-    b.textContent = '👆 Клік=телепорт: ' + (dbgTeleport ? 'увімк' : 'вимк');
+    b.textContent = t(dbgTeleport ? 'dbg.teleport.on' : 'dbg.teleport.off');
     b.classList.toggle('on', dbgTeleport);
   };
   $('btnDbgReset').onclick = () => {

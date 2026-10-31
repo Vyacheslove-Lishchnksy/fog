@@ -2,6 +2,7 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { $, toast } from './core';
 import { visited, pendingSync, persistLocal } from './store';
 import { drawFog } from './fog';
+import { t } from './i18n';
 
 // Онлайн-прогрес за акаунтом. Без ключів — тільки локально.
 export const session: { supabase: SupabaseClient | null; userId: string | null } = { supabase: null, userId: null };
@@ -33,7 +34,7 @@ export function initSupabase(): void {
 async function pullFromCloud(): Promise<void> {
   const { supabase, userId } = session;
   if (!supabase || !userId) return;
-  toast('Завантажую відкриті зони...');
+  toast(t('cloud.loading'));
   const { data, error } = await supabase.from('fog_cells').select('cell_id').limit(60000);
   if (error) return toast('Помилка завантаження: ' + error.message);
   let added = 0;
@@ -43,7 +44,7 @@ async function pullFromCloud(): Promise<void> {
   persistLocal(true);
   drawFog();
   queueSync(true);
-  toast(`Готово: ${visited.size} клітинок (${added} з хмари)`);
+  toast(t('cloud.loaded', { n: String(visited.size), a: String(added) }));
 }
 
 export function queueSync(immediate = false): void {
@@ -69,5 +70,5 @@ async function pushToCloud(): Promise<void> {
 }
 
 export function updateAuthUI(): void {
-  $('btnAuth').textContent = session.userId ? 'Акаунт ✓' : 'Увійти';
+  $('btnAuth').textContent = session.userId ? t('btn.account') : t('btn.auth');
 }
