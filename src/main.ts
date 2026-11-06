@@ -1,5 +1,6 @@
 import 'leaflet/dist/leaflet.css';
 import './style.css';
+import './marker-icons';
 import { initI18n, applyLang } from './i18n';
 import { persistLocal } from './store';
 import { drawFog, initFog } from './fog';

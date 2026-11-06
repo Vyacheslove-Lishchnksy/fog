@@ -1,5 +1,5 @@
 import { $ } from './core';
-import { togglePointMode, clearPoints } from './points';
+import { points, togglePointMode, clearPoints } from './points';
 import { renderPointsList } from './point-list';
 
 export function initLeftPanel(): void {
@@ -9,7 +9,11 @@ export function initLeftPanel(): void {
   const contentPoints = document.getElementById('tab-points')!;
   const contentDebug = document.getElementById('tab-debug')!;
 
-  function openPanel(): void { panel.classList.remove('hidden'); panel.classList.add('open'); }
+  function openPanel(): void {
+    panel.classList.remove('hidden');
+    panel.classList.add('open');
+    if (!contentPoints.classList.contains('hidden')) renderPointsList(points);
+  }
   function closePanel(): void { panel.classList.remove('open'); panel.classList.add('hidden'); }
 
   function showTab(tab: 'points' | 'debug'): void {
@@ -17,7 +21,7 @@ export function initLeftPanel(): void {
     tabDebug.classList.toggle('active', tab === 'debug');
     contentPoints.classList.toggle('hidden', tab !== 'points');
     contentDebug.classList.toggle('hidden', tab !== 'debug');
-    if (tab === 'points') renderPointsList((window as any).__points || []);
+    if (tab === 'points') renderPointsList(points);
   }
   tabPoints.onclick = () => showTab('points');
   tabDebug.onclick = () => showTab('debug');
