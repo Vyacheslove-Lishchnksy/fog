@@ -3,10 +3,14 @@ import { CELL_METERS, MIN_FOG_ZOOM, R } from './core';
 import { visited } from './store';
 import { map } from './world';
 import { paintGrain } from './grain';
+import { UI } from '../config/ui';
+import { system } from '../config/index';
 
-const FOG_MARGIN = 300; // запас навколо екрана щоб драг не оголював краї
+const FOG_MARGIN = UI.fogMargin; // запас навколо екрана щоб драг не оголював краї
+const FOG_Z_INDEX = UI.fogZIndex;
 const fogCanvas = document.createElement('canvas');
 fogCanvas.id = 'fogCanvas';
+fogCanvas.style.zIndex = String(FOG_Z_INDEX);
 map.getPane('mapPane')?.appendChild(fogCanvas);
 const fctx = fogCanvas.getContext('2d') as CanvasRenderingContext2D;
 const fogHard = document.createElement('canvas');
@@ -60,7 +64,7 @@ export function drawFog(): void {
   };
   const x0 = toCx(0), x1 = toCx(W);
   const y0 = toCy(H), y1 = toCy(0); // південь..північ
-  if ((x1 - x0) > 600 || (y1 - y0) > 600) return;
+  if ((x1 - x0) > system.MAX_CELLS_ON_SCREEN || (y1 - y0) > system.MAX_CELLS_ON_SCREEN) return;
 
   hctx.globalCompositeOperation = 'destination-out';
   for (let cx = x0; cx <= x1; cx++) {
@@ -78,7 +82,7 @@ export function drawFog(): void {
     }
   }
   const cellPx = CELL_METERS * scale * k;
-  const blurR = Math.min(12, Math.max(4, cellPx * 0.18));
+  const blurR = Math.min(UI.blurMaxPx, Math.max(UI.blurMinPx, cellPx * UI.blurCellPercent));
   fctx.globalCompositeOperation = 'source-over';
   try { fctx.filter = `blur(${blurR.toFixed(1)}px)`; } catch { fctx.filter = 'none'; }
   fctx.drawImage(fogHard, 0, 0, W, H);

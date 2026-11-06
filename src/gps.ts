@@ -3,12 +3,16 @@ import { $, toast } from './core';
 import { persistLocal } from './store';
 import { revealAt } from './grid';
 import { map, showAccuracy, clearRoute } from './world';
+import { t } from './i18n';
+import { system } from '../config/index';
 
 let watchId = 0, tracking = false;
 let wakeLock: { release(): Promise<void> } | null = null;
 
 // Фільтр сміттєвих фіксів: точність ≤150м, швидкість ≤55м/с, свіжість ≤30с.
-const MAX_ACC = 150, MAX_SPEED = 55, MAX_AGE = 30000;
+const MAX_ACC = system.GPS_MAX_ACCURACY_M;
+const MAX_SPEED = system.GPS_MAX_SPEED_MPS;
+const MAX_AGE = system.GPS_MAX_AGE_MS;
 let lastFix: { ll: L.LatLng; t: number } | null = null;
 function goodFix(pos: GeolocationPosition): boolean {
   if (!pos.coords || Date.now() - pos.timestamp > MAX_AGE || (pos.coords.accuracy || 0) > MAX_ACC) return false;
@@ -44,21 +48,21 @@ function onPos(pos: GeolocationPosition): void {
 function onPosErr(err: GeolocationPositionError): void { toast('GPS недоступний: ' + err.message); }
 
 export function locateOnce(): void {
-  if (!('geolocation' in navigator)) return toast('Браузер без GPS');
+  if (!('geolocation' in navigator)) return toast(t('toast.gps.unavailable'));
   const btn = $('btnLocate');
-  btn.textContent = '⏳ Пошук…';
-  const done = (): void => { btn.textContent = '📍 Де я?'; };
+  btn.textContent = t('toast.gps.searching');
+  const done = (): void => { btn.textContent = t('toast.gps.done'); };
   navigator.geolocation.getCurrentPosition(
     (p) => {
       const ll = L.latLng(p.coords.latitude, p.coords.longitude);
       revealAt(ll, true, true);
       void detectCity(ll);
       done();
-      toast('Позицію знайдено');
+      toast(t('toast.gps.found'));
     },
     (e) => {
       done();
-      if (e.code === e.TIMEOUT) toast('GPS мовчить 12с. На ПК без GPS це нормально — відкрий з телефона');
+      if (e.code === e.TIMEOUT) toast(t('toast.gps.timeout'));
       else onPosErr(e);
     },
     { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
@@ -70,19 +74,19 @@ export function toggleTrack(): void {
     navigator.geolocation.clearWatch(watchId);
     tracking = false;
     freeScreen();
-    clearRoute(); // кінець трекінгу — прибираємо лінію з карти
-    $('btnTrack').textContent = '▶ Трекінг';
+    clearRoute();
+    $('btnTrack').textContent = t('btn.track');
     persistLocal(true);
-    toast('Трекінг зупинено');
+    toast(t('toast.track.off'));
     return;
   }
-  if (!('geolocation' in navigator)) return toast('Браузер без GPS');
+  if (!('geolocation' in navigator)) return toast(t('toast.gps.unavailable'));
   watchId = navigator.geolocation.watchPosition(onPos, onPosErr,
     { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
   tracking = true;
   void holdScreen();
-  $('btnTrack').textContent = '⏸ Стоп';
-  toast('Трекінг увімкнено — іди, туман відкриється (екран не гасне)');
+  $('btnTrack').textContent = t('btn.track.stop');
+  toast(t('toast.track.on'));
 }
 
 let cityDone = false;
@@ -94,6 +98,6 @@ async function detectCity(ll: L.LatLng): Promise<void> {
     const r = (await res.json()) as { address?: Record<string, string>; display_name?: string };
     const a = r.address || {};
     const city = a['city'] || a['town'] || a['village'] || a['municipality'] || a['county'] || r.display_name?.split(',')[0] || '';
-    if (city) $('cityName').textContent = '— ' + city;
+    if (city) $('cityName').textContent = t('city.prefix') + city;
   } catch { /* офлайн — місто лишиться за замовчуванням */ }
 }

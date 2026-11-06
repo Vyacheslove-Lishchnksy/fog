@@ -1,8 +1,10 @@
-const TILE = 128;
-let tile: HTMLCanvasElement | null = null;
-let alpha = 0.08;
+import { UI } from '../config/ui';
 
-export function setGrainAlpha(a: number): void { alpha = a; }
+const TILE = UI.grainTile; // розмір плитки зерна, пікселі
+let tile: HTMLCanvasElement | null = null;
+let alpha = UI.grainAlphaDefault; // щільність зерна за замовчуванням
+
+export function setGrainAlpha(a: number): void { alpha = Math.max(UI.grainAlphaMin, Math.min(UI.grainAlphaMax, a)); }
 
 function makeTile(): void {
   tile = document.createElement('canvas');
@@ -20,7 +22,7 @@ function makeTile(): void {
 // Зерно тільки по непрозорому (source-atop): дірки чисті.
 // ax, ay — глобальні координати кута canvas: фаза плитки прив'язана до світу.
 export function paintGrain(ctx: CanvasRenderingContext2D, W: number, H: number, ax: number, ay: number): void {
-  if (alpha <= 0) return;
+  if (alpha <= UI.grainAlphaMin) return;
   if (!tile) makeTile();
   ctx.save();
   ctx.globalCompositeOperation = 'source-atop';

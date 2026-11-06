@@ -2,20 +2,21 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { $, toast } from './core';
 import { visited, pendingSync, persistLocal } from './store';
 import { drawFog } from './fog';
+import { t } from './i18n';
+import { config as envConfig } from './config';
+import { cloud } from '../config/index';
 
 // Онлайн-прогрес за акаунтом. Без ключів — тільки локально.
 export const session: { supabase: SupabaseClient | null; userId: string | null } = { supabase: null, userId: null };
 let saveTimer = 0;
 
 export function initSupabase(): void {
-  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-  if (!url || !key) {
+  if (!cloud.enabled) {
     $('statSync').textContent = '● local';
     $('statSync').className = 'sync-off';
     return;
   }
-  session.supabase = createClient(url, key);
+  session.supabase = createClient(envConfig.supabaseUrl, envConfig.supabaseAnonKey);
   session.supabase.auth.onAuthStateChange((_ev, s) => {
     session.userId = s?.user?.id || null;
     updateAuthUI();
@@ -33,8 +34,8 @@ export function initSupabase(): void {
 async function pullFromCloud(): Promise<void> {
   const { supabase, userId } = session;
   if (!supabase || !userId) return;
-  toast('Завантажую відкриті зони...');
-  const { data, error } = await supabase.from('fog_cells').select('cell_id').limit(60000);
+  toast(t('cloud.loading'));
+  const { data, error } = await supabase.from(cloud.tableName).select('cell_id').limit(cloud.pullLimit);
   if (error) return toast('Помилка завантаження: ' + error.message);
   let added = 0;
   for (const row of data as Array<{ cell_id: string }>) {
@@ -43,14 +44,14 @@ async function pullFromCloud(): Promise<void> {
   persistLocal(true);
   drawFog();
   queueSync(true);
-  toast(`Готово: ${visited.size} клітинок (${added} з хмари)`);
+  toast(t('cloud.loaded', { n: String(visited.size), a: String(added) }));
 }
 
 export function queueSync(immediate = false): void {
   const { supabase, userId } = session;
   if (!supabase || !userId || pendingSync.size === 0) return;
   clearTimeout(saveTimer);
-  saveTimer = window.setTimeout(() => void pushToCloud(), immediate ? 500 : 5000);
+  saveTimer = window.setTimeout(() => void pushToCloud(), immediate ? cloud.syncDelayImmediateMs : cloud.syncDelayMs);
 }
 
 async function pushToCloud(): Promise<void> {
@@ -58,9 +59,9 @@ async function pushToCloud(): Promise<void> {
   if (!supabase || !userId || pendingSync.size === 0) return;
   const rows = [...pendingSync].map((cell_id) => ({ user_id: userId, cell_id }));
   pendingSync.clear();
-  for (let i = 0; i < rows.length; i += 1000) {
-    const batch = rows.slice(i, i + 1000);
-    const { error } = await supabase.from('fog_cells').upsert(batch, { onConflict: 'user_id,cell_id', ignoreDuplicates: true });
+  for (let i = 0; i < rows.length; i += cloud.pushBatchSize) {
+    const batch = rows.slice(i, i + cloud.pushBatchSize);
+    const { error } = await supabase.from(cloud.tableName).upsert(batch, { onConflict: cloud.upsertOnConflict, ignoreDuplicates: cloud.ignoreDuplicates });
     if (error) {
       batch.forEach((r) => pendingSync.add(r.cell_id));
       return toast('Не вдалось зберегти онлайн: ' + error.message);
@@ -69,5 +70,5 @@ async function pushToCloud(): Promise<void> {
 }
 
 export function updateAuthUI(): void {
-  $('btnAuth').textContent = session.userId ? 'Акаунт ✓' : 'Увійти';
+  $('btnAuth').textContent = session.userId ? t('btn.account') : t('btn.auth');
 }

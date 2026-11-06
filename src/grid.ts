@@ -6,6 +6,12 @@ import { drawFog } from './fog';
 import { queueSync } from './cloud';
 import { bumpStats } from './stats';
 
+// Клітинка, до якої належить точка.
+export function cellOf(latlng: L.LatLng): string {
+  const c = L.CRS.EPSG3857.project(latlng);
+  return Math.floor(c.x / CELL_METERS) + ':' + Math.floor(c.y / CELL_METERS);
+}
+
 // Клітинки навколо точки в радіусі radiusM.
 export function cellsAround(latlng: L.LatLng, radiusM: number): string[] {
   const c = L.CRS.EPSG3857.project(latlng);
