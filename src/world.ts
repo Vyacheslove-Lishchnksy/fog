@@ -1,32 +1,34 @@
 import * as L from 'leaflet';
 import { route, loadRoute, loadLastPos } from './store';
+import { UI } from '../config/ui';
+import { system } from '../config/index';
 
 // Карта: стартуємо з останньої позиції (або Київ за замовчуванням).
 const startPos = loadLastPos();
 export const map = L.map('map', {
   zoomControl: false,
-  minZoom: 11,
-  maxZoom: 18,
-  maxBoundsViscosity: 0.9,
+  minZoom: UI.minZoom,
+  maxZoom: UI.maxZoom,
+  maxBoundsViscosity: UI.worldBoundsViscosity,
   worldCopyJump: false,
-}).setView(startPos || [50.4501, 30.5234], startPos ? 16 : 13);
+}).setView(startPos || UI.defaultCenter, startPos ? 16 : UI.defaultZoom);
 L.control.zoom({ position: 'topright' }).addTo(map);
 
 export const tiles = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 18,
-  minZoom: 11,
-  keepBuffer: 2,
+  maxZoom: UI.tileMaxZoom,
+  minZoom: UI.tileMinZoom,
+  keepBuffer: UI.tileKeepBuffer,
   updateWhenIdle: true,
-  updateInterval: 200,
+  updateInterval: UI.tileUpdateInterval,
   attribution: '&copy; OpenStreetMap',
 }).addTo(map);
 
 // Замок на район міста (~±25км): тайли поза боксом не запитуються.
 let homeCenter: L.LatLng | null = null;
 export function lockToHome(ll: L.LatLng, force = false): void {
-  if (!homeCenter || force || map.distance(homeCenter, ll) > 20000) {
+  if (!homeCenter || force || map.distance(homeCenter, ll) > UI.relockDistanceMeters) {
     homeCenter = ll;
-    const box = L.latLngBounds([ll.lat - 0.22, ll.lng - 0.32], [ll.lat + 0.22, ll.lng + 0.32]);
+    const box = L.latLngBounds([ll.lat - UI.homeBoxLat, ll.lng - UI.homeBoxLng], [ll.lat + UI.homeBoxLat, ll.lng + UI.homeBoxLng]);
     map.setMaxBounds(box);
     tiles.options.bounds = box.pad(0.5);
     tiles.redraw();
@@ -55,13 +57,13 @@ export function showAccuracy(latlng: L.LatLng, meters: number): void {
   else accCircle = L.circle(latlng, { radius: meters, color: '#2563eb', opacity: 0.25, fillOpacity: 0.12 }).addTo(map);
 }
 
-// Маршрут: тільки при зсуві >5м, максимум 1000 точок.
+// Маршрут: тільки при зсубі >5м, максимум 1000 точок.
 export function pushRoute(latlng: L.LatLng): boolean {
-  if (route.last && map.distance(route.last, latlng) <= 5) return false;
+  if (route.last && map.distance(route.last, latlng) <= UI.routeMinDistanceMeters) return false;
   route.last = latlng;
   routeLine.addLatLng(latlng);
   route.latlngs.push(latlng);
-  if (route.latlngs.length > 1000) {
+  if (route.latlngs.length > system.MAX_ROUTE_STORED) {
     route.latlngs.shift();
     routeLine.setLatLngs(route.latlngs);
   }

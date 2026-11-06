@@ -6,10 +6,11 @@ import { initPoints } from './points';
 import { initLeftPanel } from './left-panel';
 import { initSettingsPanel } from './settings-panel';
 import { t, applyLang } from './i18n';
+import { config } from './config';
 
 // QR на прод-сайт (qr.svg згенеровано під прод-URL з VITE_SHARE_URL;
 // якщо URL зміниться — перегенеруй qr.svg).
-const SHARE_URL = (import.meta.env.VITE_SHARE_URL as string | undefined) || 'https://fog-0tou.onrender.com/';
+const SHARE_URL = config.shareUrl;
 function renderShare(): void {
   let m = document.getElementById('shareModal'); // може ще не існувати — тут null ок
   if (!m) {

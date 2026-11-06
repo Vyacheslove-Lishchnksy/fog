@@ -4,12 +4,15 @@ import { persistLocal } from './store';
 import { revealAt } from './grid';
 import { map, showAccuracy, clearRoute } from './world';
 import { t } from './i18n';
+import { system } from '../config/index';
 
 let watchId = 0, tracking = false;
 let wakeLock: { release(): Promise<void> } | null = null;
 
 // Фільтр сміттєвих фіксів: точність ≤150м, швидкість ≤55м/с, свіжість ≤30с.
-const MAX_ACC = 150, MAX_SPEED = 55, MAX_AGE = 30000;
+const MAX_ACC = system.GPS_MAX_ACCURACY_M;
+const MAX_SPEED = system.GPS_MAX_SPEED_MPS;
+const MAX_AGE = system.GPS_MAX_AGE_MS;
 let lastFix: { ll: L.LatLng; t: number } | null = null;
 function goodFix(pos: GeolocationPosition): boolean {
   if (!pos.coords || Date.now() - pos.timestamp > MAX_AGE || (pos.coords.accuracy || 0) > MAX_ACC) return false;

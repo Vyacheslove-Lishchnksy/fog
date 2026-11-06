@@ -1,13 +1,14 @@
 import { $, LS_KEY } from './core';
 import type { LatLng } from 'leaflet';
+import { system } from '../config/index';
 
 // Відвідані клітинки + маршрут + черга синхронізації в хмару.
 export const visited: Set<string> = new Set(loadCells());
 export const route: { latlngs: LatLng[]; last: LatLng | null } = { latlngs: [], last: null };
 export const pendingSync: Set<string> = new Set();
 let persistTimer = 0;
-const ROUTE_KEY = 'fow_route_v1';
-const LASTPOS_KEY = 'fow_lastpos_v1';
+const ROUTE_KEY = system.LS_ROUTE_KEY;
+const LASTPOS_KEY = system.LS_LASTPOS_KEY;
 
 function loadCells(): string[] {
   try {
@@ -25,7 +26,7 @@ export function persistLocal(immediate = false): void {
     persistTimer = window.setTimeout(() => persistLocal(true), 5000);
     return;
   }
-  try { localStorage.setItem(LS_KEY, JSON.stringify([...visited].slice(-50000))); } catch { /* quota */ }
+  try { localStorage.setItem(LS_KEY, JSON.stringify([...visited].slice(-system.MAX_VISITED_STORED))); } catch { /* quota */ }
   saveRoute();
   try {
     if (route.last) localStorage.setItem(LASTPOS_KEY, JSON.stringify([+route.last.lat.toFixed(5), +route.last.lng.toFixed(5)]));
@@ -36,7 +37,7 @@ export function persistLocal(immediate = false): void {
 export function saveRoute(): void {
   try {
     const pts = route.latlngs.map((p) => [+p.lat.toFixed(5), +p.lng.toFixed(5)]);
-    localStorage.setItem(ROUTE_KEY, JSON.stringify(pts.slice(-1000)));
+    localStorage.setItem(ROUTE_KEY, JSON.stringify(pts.slice(-system.MAX_ROUTE_STORED)));
   } catch { /* quota */ }
 }
 export function loadRoute(): Array<[number, number]> {
