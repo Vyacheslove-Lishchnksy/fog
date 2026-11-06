@@ -14,7 +14,7 @@ let dbgTeleport = false;
 
 function paintPos(): void {
   if (!dbgPos) return;
-  $('dbgPos').textContent = dbgPos.lat.toFixed(5) + ', ' + dbgPos.lng.toFixed(5) + ' · ' + visited.size + ' кл.';
+  $('dbgPos').textContent = dbgPos.lat.toFixed(5) + ', ' + dbgPos.lng.toFixed(5) + ' · ' + visited.size + ' ' + t('dbg.cellsUnit');
 }
 
 function dbgShow(): void {
@@ -44,7 +44,8 @@ function dbgStep(dxM: number, dyM: number): void {
 
 export function initDebug(): void {
   const panel = $('leftPanel');
-  $('btnDbgStart').onclick = () => { dbgWalkTo(map.getCenter(), true); toast('Ходок на центрі — ходи стрілками'); };
+  $('btnDbgStart').onclick = () => { dbgWalkTo(map.getCenter(), true); toast(t('dbg.toast.start')); };
+  $('btnDbgTeleport').textContent = t('dbg.teleport.off');
   $('btnDbgTeleport').onclick = (e) => {
     dbgTeleport = !dbgTeleport;
     const b = e.currentTarget as HTMLElement;
@@ -56,7 +57,7 @@ export function initDebug(): void {
     clearRoute();
     drawFog();
     dbgShow();
-    toast('Туман скинуто');
+    toast(t('toast.reset'));
   };
   $('dbgGrain').oninput = (e) => { setGrainAlpha(Number((e.currentTarget as HTMLInputElement).value) / 100); drawFog(); };
   panel.querySelectorAll<HTMLButtonElement>('.dpad button').forEach((b) => {

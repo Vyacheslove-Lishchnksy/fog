@@ -1,5 +1,6 @@
 import { toast } from './core';
 import { visited } from './store';
+import { t } from './i18n';
 
 const STATS_KEY = 'fow_stats_v1';
 const ACH_KEY = 'fow_ach_v1';
@@ -81,7 +82,7 @@ export function checkAch(silent: boolean): boolean {
     if (!unlocked.has(a.id) && a.test(s)) {
       unlocked.add(a.id);
       changed = true;
-      if (!silent) toast(`🏆 ${a.icon} ${a.name}!`);
+      if (!silent) toast(`🏆 ${a.icon} ${t(a.name)}!`);
     }
   }
   if (changed) { try { localStorage.setItem(ACH_KEY, JSON.stringify([...unlocked])); } catch { /* quota */ } }

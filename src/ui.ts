@@ -5,7 +5,7 @@ import { getStats, achList, checkAch } from './stats';
 import { initPoints } from './points';
 import { initLeftPanel } from './left-panel';
 import { initSettingsPanel } from './settings-panel';
-import { t, applyLang } from './i18n';
+import { t } from './i18n';
 import { config } from './config';
 
 // QR на прод-сайт (qr.svg згенеровано під прод-URL з VITE_SHARE_URL;
@@ -17,21 +17,20 @@ function renderShare(): void {
     m = document.createElement('div');
     m.id = 'shareModal';
     m.className = 'modal hidden';
-    m.innerHTML = `<div class="modal-card" style="align-items:center;text-align:center"><b data-i18n="modal.share.title">📱 На телефон</b><img id="qrImg" src="./qr.svg" alt="QR на сайт" /><div class="muted" data-i18n="share.subtitle">QR-код на телефон</div><div class="muted">${SHARE_URL}</div><button id="btnShareClose" class="btn ghost" data-i18n="modal.share.close">Закрити</button></div>`;
+    m.innerHTML = `<div class="modal-card" style="align-items:center;text-align:center"><b>${t('modal.share.title')}</b><img id="qrImg" src="./qr.svg" alt="${t('share.subtitle')}" /><div class="muted">${t('share.subtitle')}</div><div class="muted">${SHARE_URL}</div><button id="btnShareClose" class="btn ghost">${t('modal.share.close')}</button></div>`;
     document.body.appendChild(m);
     m.addEventListener('click', (e) => {
-      const t = e.target as HTMLElement;
-      if (t === m || t.id === 'btnShareClose') m?.classList.add('hidden');
+      const el = e.target as HTMLElement;
+      if (el === m || el.id === 'btnShareClose') m?.classList.add('hidden');
     });
   }
-  applyLang();
   m.classList.remove('hidden');
 }
 function shareButton(): HTMLButtonElement {
   const b = document.createElement('button');
   b.id = 'btnShare';
   b.className = 'btn ghost small';
-  b.title = 'QR-код на телефон';
+  b.title = t('share.button');
   b.textContent = '📱';
   b.onclick = renderShare;
   return b;
@@ -40,9 +39,9 @@ function renderStats(): void {
   const s = getStats();
   const rows = [
     [t('stats.cells'), String(s.cells)],
-    [t('stats.area'), s.areaKm2.toFixed(2) + ' км²'],
-    [t('stats.distance'), s.totalKm.toFixed(1) + ' км'],
-    [t('stats.streak'), s.streak + ' дн.'],
+    [t('stats.area'), s.areaKm2.toFixed(2) + ' ' + t('unit.km2')],
+    [t('stats.distance'), s.totalKm.toFixed(1) + ' ' + t('unit.km')],
+    [t('stats.streak'), s.streak + ' ' + t('unit.days')],
     [t('stats.days'), String(s.days)],
     [t('stats.today'), '+' + s.today],
     [t('stats.best'), s.best ? `${s.best.n} (${s.best.date.slice(5)})` : '—'],
@@ -52,13 +51,13 @@ function renderStats(): void {
     `<div class="ach${a.done ? ' on' : ''}"><span>${a.icon}</span><div><b>${t(a.name)}</b><i>${t(a.desc)}</i></div></div>`
   ).join('');
   $('statsCard').innerHTML =
-    `<div class="dbg-head"><b data-i18n="stats.title">📊 Статистика</b><button id="btnStatsClose" class="btn small ghost" data-i18n="modal.auth.close">✕</button></div>` +
-    rows + `<h4 data-i18n="stats.achievements">Досягнення ${list.filter((a) => a.done).length}/${list.length}</h4>` + ach;
+    `<div class="dbg-head"><b>${t('stats.title')}</b><button id="btnStatsClose" class="btn small ghost">${t('stats.close')}</button></div>` +
+    rows + `<h4>${t('stats.achievements')} ${list.filter((a) => a.done).length}/${list.length}</h4>` + ach;
   $('btnStatsClose').onclick = () => $('statsModal').classList.add('hidden');
 }
 
 export function initUI(): void {
-  $('appVer').textContent = 'v' + VER;
+  $('appVer').textContent = t('ver.prefix') + VER;
   if (!DEBUG) {
     $('appVer').style.display = 'none';
   }

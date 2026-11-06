@@ -18,9 +18,17 @@ function pointId(p: Point): string { return p.lat.toFixed(5) + ':' + p.lng.toFix
 function loadPoints(): void { try { const r = localStorage.getItem(POINTS_KEY); if (r) for (const p of JSON.parse(r) as Point[]) points.push(p); } catch { } }
 function savePoints(): void { try { localStorage.setItem(POINTS_KEY, JSON.stringify(points)); } catch { } }
 function makeMarker(p: Point): L.Marker {
-  const m = L.marker([p.lat, p.lng], { title: `${p.label ? p.label + ' — ' : ''}${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`, alt: 'Точка' });
+  const m = L.marker([p.lat, p.lng], { title: `${p.label ? p.label + ' — ' : ''}${p.lat.toFixed(4)}, ${p.lng.toFixed(4)}`, alt: t('points.marker.alt') });
   if (p.label) m.bindTooltip(p.label, { permanent: true, direction: 'top', offset: [0, -10], className: 'point-tooltip' }).openTooltip();
   m.on('click', () => removePoint(p)); return m;
+}
+// Знімаємо маркер разом із підписом: unbindTooltip закриває tooltip.
+// Не використовувати m.off() — він знімає і внутрішній обробник Leaflet,
+// через який tooltip закривається при видаленні шару.
+function detachMarker(m: L.Marker): void {
+  m.unbindTooltip();
+  m.off();
+  if (pointLayer) pointLayer.removeLayer(m); else map.removeLayer(m);
 }
 function redrawLayer(): void { if (!pointLayer) return; pointLayer.clearLayers(); for (const m of markers) pointLayer.addLayer(m); }
 function isRevealed(latlng: L.LatLng): boolean { return visited.has(cellOf(latlng)); }
@@ -42,13 +50,13 @@ export function removePoint(p: Point): void {
   const i = points.findIndex((q) => pointId(q) === pointId(p));
   if (i < 0) return;
   points.splice(i, 1); const m = markers.splice(i, 1)[0];
-  m.off(); if (pointLayer) pointLayer.removeLayer(m); else map.removeLayer(m);
+  detachMarker(m);
   savePoints(); renderPointsList(points);
   toast(t('points.removed'));
 }
 
 export function clearPoints(): void {
-  for (const m of markers) { m.off(); if (pointLayer) pointLayer.removeLayer(m); else map.removeLayer(m); }
+  for (const m of markers) detachMarker(m);
   markers.length = 0; points.length = 0; if (pointLayer) pointLayer.clearLayers();
   localStorage.removeItem(POINTS_KEY); renderPointsList(points);
   toast(t('points.removed.all'));
@@ -58,7 +66,7 @@ export function togglePointMode(): boolean {
   pointMode = !pointMode;
   const cb = document.getElementById('btnPointToggle') as HTMLInputElement | null;
   if (cb) cb.checked = pointMode;
-  toast(pointMode ? 'Клік по відкритій частині карти — поставити точку' : 'Режим точок вимкнено');
+  toast(t(pointMode ? 'hint.point.click' : 'hint.point.off'));
   return pointMode;
 }
 

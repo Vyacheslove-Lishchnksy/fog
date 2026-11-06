@@ -1,74 +1,74 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>Fog of War — моє місто</title>
+<title>Fog of War — my city</title>
 <link rel="manifest" href="./manifest.webmanifest" />
 <meta name="theme-color" content="#111827" />
 <link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin />
 </head>
 <body>
 <div id="map"></div>
-<script>document.body.insertAdjacentHTML('afterbegin','<div id="boot"><div class="spin"></div><div>Завантаження карти…</div></div>')</script>
+<script>document.body.insertAdjacentHTML('afterbegin','<div id="boot"><div class="spin"></div><div data-i18n="boot.loading">Loading map…</div></div>')</script>
 <header id="topbar">
-  <div class="brand" data-i18n="brand">🌫️ FOG <span id="cityName" data-i18n="city.default">моє місто</span></div>
+  <div class="brand">🌫️ FOG <span id="cityName" data-i18n="city.default">my city</span></div>
   <div class="stats">
-    <span id="statCells">0</span> <span data-i18n="stat.cells">клітинок</span>
-    <span id="statSync" class="sync-off" title="Статус синхронізації">● local</span>
-    <span id="appVer" class="muted" title="Версія коду">…</span>
+    <span id="statCells">0</span> <span data-i18n="stat.cells">cells</span>
+    <span id="statSync" class="sync-off" data-i18n-title="stat.sync.title">● local</span>
+    <span id="appVer" class="muted" data-i18n-title="ver.title">…</span>
   </div>
-  <button id="btnAuth" class="btn small" data-i18n="btn.auth">Увійти</button>
+  <button id="btnAuth" class="btn small" data-i18n="btn.auth">Sign in</button>
 </header>
 <button id="btnPanel" class="btn ghost small panel-toggle" data-i18n-title="btn.panel">📋</button>
 <button id="btnSettings" class="btn ghost small settings-toggle" data-i18n-title="btn.settings">⚙️</button>
 <div id="controls">
-  <button id="btnLocate" class="btn primary" data-i18n="btn.locate">📍 Де я?</button>
-  <button id="btnTrack" class="btn" data-i18n="btn.track">▶ Трекінг</button>
+  <button id="btnLocate" class="btn primary" data-i18n="btn.locate">📍 Where am I?</button>
+  <button id="btnTrack" class="btn" data-i18n="btn.track">▶ Tracking</button>
   <button id="btnStats" class="btn ghost" data-i18n-title="btn.stats">📊</button>
 </div>
 <aside id="leftPanel" class="hidden">
   <div class="tabs">
-    <button class="tab active" data-tab="points" data-i18n="tab.points">📌 Точки</button>
-    <button class="tab" data-tab="debug" data-i18n="tab.debug">🛠 Дебаг</button>
+    <button class="tab active" data-tab="points" data-i18n="tab.points">📌 Points</button>
+    <button class="tab" data-tab="debug" data-i18n="tab.debug">🛠 Debug</button>
   </div>
   <div class="tab-content" id="tab-points">
-    <div class="dbg-head"><b data-i18n="panel.points.title">📌 Мої точки</b><button id="btnPointListClear" class="btn small ghost" data-i18n="points.clear.all">Очистити всі</button></div>
-    <div id="pointsList" class="muted points-list" data-i18n="points.list.empty">Точок немає</div>
-    <div class="row"><label class="chk">✨ <input id="btnPointToggle" type="checkbox" title="Режим поставити точку на карті" /></label></div>
-    <p class="muted small-hint" data-i18n="hint.point.click">Клік по відкритій частині карти — поставити точку</p>
+    <div class="dbg-head"><b data-i18n="panel.points.title">📌 My points</b><button id="btnPointListClear" class="btn small ghost" data-i18n="points.clear.all">Clear all</button></div>
+    <div id="pointsList" class="muted points-list">No points yet</div>
+    <div class="row"><label class="chk">✨ <input id="btnPointToggle" type="checkbox" data-i18n-title="hint.point.toggle" /></label></div>
+    <p class="muted small-hint" data-i18n="hint.point.click">Click on the revealed part of the map to place a point</p>
   </div>
   <div class="tab-content hidden" id="tab-debug">
-    <div class="dbg-head"><b data-i18n="panel.debug.title">🛠 Ходьба (debug)</b></div>
-    <div id="dbgPos" class="muted">клікни «Старт» або клік по карті</div>
+    <div class="dbg-head"><b data-i18n="panel.debug.title">🛠 Walk (debug)</b></div>
+    <div id="dbgPos" class="muted" data-i18n="dbg.pos.hint">click “Start” or click on the map</div>
     <div class="dpad"><span></span><button data-step="0,1">▲</button><span></span><button data-step="-1,0">◀</button><span></span><button data-step="1,0">▶</button><span></span><button data-step="0,-1">▼</button><span></span></div>
-    <div class="row"><select id="dbgStep"><option value="20">крок 20м</option><option value="70" selected>крок 70м</option><option value="200">крок 200м</option></select><label class="chk"><input type="checkbox" id="dbgFollow" checked /> <span data-i18n="dbg.follow">слідкувати</span></label></div>
-    <div class="row"><label class="chk">✨ <input id="dbgGrain" type="range" min="0" max="25" value="8" title="Щільність зерна" /><span data-i18n="dbg.grain">Щільність зерна</span></label></div>
-    <div class="row"><button id="btnDbgStart" class="btn primary" data-i18n="dbg.start">📍 Старт з центру</button></div>
-    <div class="row"><button id="btnDbgTeleport" class="btn">👆 Клік=телепорт: вимк</button></div>
-    <div class="row"><button id="btnDbgReset" class="btn ghost" data-i18n="dbg.reset">Скинути туман</button></div>
-    <div class="muted" data-i18n="keyboard.hint">Клавіатура: стрілки / WASD = крок</div>
+    <div class="row"><select id="dbgStep"><option value="20" data-i18n="dbg.step20">step 20m</option><option value="70" selected data-i18n="dbg.step70">step 70m</option><option value="200" data-i18n="dbg.step200">step 200m</option></select><label class="chk"><input type="checkbox" id="dbgFollow" checked /> <span data-i18n="dbg.follow">follow</span></label></div>
+    <div class="row"><label class="chk">✨ <input id="dbgGrain" type="range" min="0" max="25" value="8" data-i18n-title="dbg.grain" /><span data-i18n="dbg.grain">Grain density</span></label></div>
+    <div class="row"><button id="btnDbgStart" class="btn primary" data-i18n="dbg.start">📍 Start from center</button></div>
+    <div class="row"><button id="btnDbgTeleport" class="btn">👆 Click=teleport: off</button></div>
+    <div class="row"><button id="btnDbgReset" class="btn ghost" data-i18n="dbg.reset">Reset fog</button></div>
+    <div class="muted" data-i18n="keyboard.hint">Keyboard: arrows / WASD = step</div>
   </div>
 </aside>
 <aside id="settingsPanel" class="hidden">
-  <div class="dbg-head"><b data-i18n="panel.settings.title">⚙️ Налаштування</b></div>
+  <div class="dbg-head"><b data-i18n="panel.settings.title">⚙️ Settings</b></div>
   <div class="row">
-    <label class="chk"><span data-i18n="lang.label">Мова</span></label>
+    <label class="chk"><span data-i18n="lang.label">Language</span></label>
     <select id="settingsLang">
-      <option value="uk" data-i18n="lang.uk">Українська</option>
-      <option value="en" data-i18n="lang.en">Англійська</option>
+      <option value="en" data-i18n="lang.en">English</option>
+      <option value="uk" data-i18n="lang.uk">Ukrainian</option>
     </select>
   </div>
-  <div class="muted small-hint" data-i18n="lang.changed">Зберігається у локальному сховищі.</div>
+  <div class="muted small-hint" data-i18n="lang.changed">Saved in local storage.</div>
 </aside>
 <div id="authModal" class="modal hidden">
   <div class="modal-card">
-    <h3 data-i18n="modal.auth.title">Онлайн-прогрес</h3>
-    <p class="muted" data-i18n="modal.auth.hint">Без ключів Supabase працює локально. Додай їх в <code>.env.local</code> (дивись <code>.env.example</code>).</p>
-    <input id="email" type="email" placeholder="email" autocomplete="username" data-i18n="modal.auth.email" />
-    <input id="password" type="password" placeholder="пароль" autocomplete="current-password" data-i18n="modal.auth.password" />
-    <div class="row"><button id="btnLogin" class="btn primary" data-i18n="modal.auth.login">Увійти</button><button id="btnSignup" class="btn" data-i18n="modal.auth.signup">Реєстрація</button></div>
-    <div class="row"><button id="btnLogout" class="btn ghost" data-i18n="modal.auth.logout">Вийти</button><button id="btnCloseAuth" class="btn ghost" data-i18n="modal.auth.close">Закрити</button></div>
+    <h3 data-i18n="modal.auth.title">Online progress</h3>
+    <p class="muted" data-i18n="modal.auth.hint">Without Supabase keys it works locally only. Add them to .env.local (see .env.example).</p>
+    <input id="email" type="email" placeholder="email" autocomplete="username" data-i18n-placeholder="modal.auth.email" />
+    <input id="password" type="password" placeholder="password" autocomplete="current-password" data-i18n-placeholder="modal.auth.password" />
+    <div class="row"><button id="btnLogin" class="btn primary" data-i18n="modal.auth.login">Sign in</button><button id="btnSignup" class="btn" data-i18n="modal.auth.signup">Sign up</button></div>
+    <div class="row"><button id="btnLogout" class="btn ghost" data-i18n="modal.auth.logout">Sign out</button><button id="btnCloseAuth" class="btn ghost" data-i18n="modal.auth.close">Close</button></div>
     <p id="authMsg" class="muted"></p>
   </div>
 </div>

@@ -12,7 +12,7 @@ let saveTimer = 0;
 
 export function initSupabase(): void {
   if (!cloud.enabled) {
-    $('statSync').textContent = '● local';
+    $('statSync').textContent = t('stat.sync.local');
     $('statSync').className = 'sync-off';
     return;
   }
@@ -27,7 +27,7 @@ export function initSupabase(): void {
     updateAuthUI();
     if (session.userId) void pullFromCloud();
   });
-  $('statSync').textContent = '● online';
+  $('statSync').textContent = t('stat.sync.online');
   $('statSync').className = 'sync-on';
 }
 
@@ -36,7 +36,7 @@ async function pullFromCloud(): Promise<void> {
   if (!supabase || !userId) return;
   toast(t('cloud.loading'));
   const { data, error } = await supabase.from(cloud.tableName).select('cell_id').limit(cloud.pullLimit);
-  if (error) return toast('Помилка завантаження: ' + error.message);
+  if (error) return toast(t('cloud.error.load', { msg: error.message }));
   let added = 0;
   for (const row of data as Array<{ cell_id: string }>) {
     if (!visited.has(row.cell_id)) { visited.add(row.cell_id); added++; }
@@ -64,7 +64,7 @@ async function pushToCloud(): Promise<void> {
     const { error } = await supabase.from(cloud.tableName).upsert(batch, { onConflict: cloud.upsertOnConflict, ignoreDuplicates: cloud.ignoreDuplicates });
     if (error) {
       batch.forEach((r) => pendingSync.add(r.cell_id));
-      return toast('Не вдалось зберегти онлайн: ' + error.message);
+      return toast(t('cloud.error.save', { msg: error.message }));
     }
   }
 }

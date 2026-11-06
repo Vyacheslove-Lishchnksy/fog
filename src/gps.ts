@@ -45,7 +45,7 @@ function onPos(pos: GeolocationPosition): void {
   void detectCity(ll);
 }
 
-function onPosErr(err: GeolocationPositionError): void { toast('GPS недоступний: ' + err.message); }
+function onPosErr(err: GeolocationPositionError): void { toast(t('toast.gps.error', { msg: err.message })); }
 
 export function locateOnce(): void {
   if (!('geolocation' in navigator)) return toast(t('toast.gps.unavailable'));
@@ -68,6 +68,8 @@ export function locateOnce(): void {
     { enableHighAccuracy: true, timeout: 12000, maximumAge: 30000 },
   );
 }
+
+export function isTracking(): boolean { return tracking; }
 
 export function toggleTrack(): void {
   if (tracking) {
